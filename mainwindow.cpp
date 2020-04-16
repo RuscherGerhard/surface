@@ -130,9 +130,12 @@ void MainWindow::_AddResultsToScene()
             //In die ResultsMap adden
             _ResultPixMaps[j] = item;
 
-            QRectF rect = item->boundingRect();
+            //QRectF rect = item->boundingRect();
 
-            item->setPos(0,rect.y()*j +10);
+
+            item->setPos(0, scaledMap.height()*(j+1) +10);
+
+            ui->ErrorLabel->setText(QString::number(scaledMap.height()));
 
             //In die Scene adden!
             MyResultsScene->addItem(item);
