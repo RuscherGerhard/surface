@@ -25,7 +25,7 @@ public:
 
     QApplication* GetQApp();
 
-    bool ProcessImage(QImage* image, std::vector<QImage*>* resultVector);
+    std::vector<QImage*>* ProcessImage(QImage* image);
 
 
 private:

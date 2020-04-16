@@ -29,8 +29,8 @@ void MainIfc::ForwardPipePlanToPipeManager(std::vector<std::vector<FilterId>>* p
 }
 
 
-bool MainIfc::ProcessImage(QImage *image, std::vector<QImage*> *resultVector)
+std::vector<QImage*>* MainIfc::ProcessImage(QImage *image)
 {
-    _PipeMan->ProcessImage(image, resultVector);
-    return true;
+    return _PipeMan->ProcessImage(image);
+
 }

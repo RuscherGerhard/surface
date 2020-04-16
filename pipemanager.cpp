@@ -5,6 +5,7 @@
 PipeManager::PipeManager()
 {
     _Pipes.resize(0);
+    _ResultVector.resize(0);
 }
 
 
@@ -12,15 +13,23 @@ PipeManager::~PipeManager()
 {
     //Da wir unseren Pipe Manager abbauen, wollen wir hier natürlich auch den Speicher für die Pipes frei geben!
     _DeletePipes();
+    _DeleteResults();
 }
 
 /*Processing*/
-bool PipeManager::ProcessImage(QImage *imageToProcess, std::vector<QImage*> *resultVector)
+std::vector<QImage*>* PipeManager::ProcessImage(QImage *imageToProcess)
 {
+    //für den Fall, daß noch keine Pipes aufgesetzt wurden!
+    if(_Pipes.size() <= 0)
+        return nullptr;
+
+
     for(size_t i = 0; i < _Pipes.size(); i++)
     {
-        resultVector->push_back(_Pipes[i]->ProcessImage(imageToProcess));
+        _ResultVector[i] = (_Pipes[i]->ProcessImage(imageToProcess));
     }
+
+    return &_ResultVector;
 }
 
 
@@ -29,10 +38,13 @@ bool PipeManager::ProcessImage(QImage *imageToProcess, std::vector<QImage*> *res
 void PipeManager::UpdatePipes(std::vector<std::vector<FilterId>>* Pipes)
 {
     //Aufräumen
-    if(_Pipes.size() == 0)
-    {
-        _DeletePipes();//Die alte Bildverarbeitung abbauen
-    }
+    //_DeleteResults();//Den alten Ergebnisvector abbauen!
+    _ResultVector.resize(0);
+    _DeletePipes();//Die alte Bildverarbeitung abbauen
+
+
+    //den Resultvector initialisieren
+    _ResultVector.resize(Pipes->size());
 
     std::ofstream stream;
     stream.open(DEBUG_PATH);
@@ -61,3 +73,20 @@ void PipeManager::_DeletePipes()
     //Den Pipevektor auf die Länge 0 setzen, somit wissen wir, wenn der Vektor Länge größer 0 hat, gibt es ne Pipe!
     _Pipes.resize(0);
 }
+
+void PipeManager::_DeleteResults()
+{
+        for(size_t i = 0; i < _ResultVector.size(); i++)
+        {
+            if(_ResultVector.at(i) != nullptr)
+            {
+
+                delete(_ResultVector.at(i));
+                _ResultVector.at(i)=nullptr;
+            }
+        }
+        _ResultVector.resize(0);
+}
+
+
+

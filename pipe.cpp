@@ -91,7 +91,8 @@ void Pipe::_DeleteFilters()
 QImage* Pipe::ProcessImage(QImage *imageToProcess)
 {
     std::vector<Filter*>::iterator fqit;//fuq it!!!!
-    QImage* image = imageToProcess;
+    _WorkingCopy = *imageToProcess;
+    QImage* image = &_WorkingCopy;
 
     for(fqit = _FilterQueue.begin(); fqit < _FilterQueue.end(); fqit++)
     {
@@ -99,4 +100,6 @@ QImage* Pipe::ProcessImage(QImage *imageToProcess)
         filter->ProcessImage(image);
         image = filter->getImage();
     }
+
+    return image;
 }

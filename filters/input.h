@@ -3,6 +3,7 @@
 
 #include "filter.h"
 
+
 class Input : public Filter
 {
 public:

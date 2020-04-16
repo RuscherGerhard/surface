@@ -10,6 +10,7 @@ class QGraphicsView;
 class QGraphicsScene;
 class QGraphicsPixmapItem;
 class MainIfc;
+class QGridLayout;
 
 namespace Ui {
 class MainWindow;
@@ -40,13 +41,22 @@ private:
 
     std::ofstream debugOut;
 
+    std::vector<QGraphicsPixmapItem*> _ResultPixMaps;
+
     //Pointer
     MainIfc* _MainIfc;
+
+
 
     //Variablen
     QGraphicsView* MyView;
     QGraphicsScene* MyScene;
-    QGraphicsPixmapItem* MyItem;
+    QGraphicsView* MyResultsView;
+    QGraphicsScene* MyResultsScene;
+
+
+    QGraphicsPixmapItem* MyItem;///< Ist mein Originalbild als Picsmap
+    QImage* MyImage;///< Ist mein Originalbild als QImage
 
     PipeConfig* _PipeConfig;
 
@@ -68,6 +78,11 @@ private:
      * @brief _SetupGui: Setupmethode für die Gui. Arangiert Menüleiste, Graphicsview usw.....
      */
     void _SetupGui();
+
+
+    void _AddResultsToScene();
+
+    void _CleanupResultPixMaps();
 
 private slots:
     void _OnMenuBtnLoadImg();

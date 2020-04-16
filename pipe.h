@@ -18,6 +18,7 @@ public:
 
 private:
     std::vector<Filter*> _FilterQueue;
+    QImage _WorkingCopy;
 
     /**
      * @brief DeleteFilters:

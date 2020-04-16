@@ -19,11 +19,16 @@ public:
      */
     void UpdatePipes(std::vector< std::vector<FilterId>>* Pipes);
 
-    bool ProcessImage(QImage* imageToProcess, std::vector<QImage*>* resultVector);
+    std::vector<QImage*>* ProcessImage(QImage* imageToProcess);
+
+    bool GetPipeExists();
 
 private:
 
+    std::vector<QImage*> _ResultVector;
+
     std::vector<Pipe*> _Pipes;///< Beherbergt die Einzelnen Bildverarbeitungspipes.
+
 
 
     /**
@@ -31,6 +36,8 @@ private:
      *          Baut alle Bildverarbeitungspipes ab!
      */
     void _DeletePipes();
+
+    void _DeleteResults();
 };
 
 #endif // PIPEMANAGER_H
