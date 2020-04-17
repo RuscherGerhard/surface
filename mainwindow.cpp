@@ -6,7 +6,8 @@
 #include <QGraphicsView>
 #include <QGraphicsPixmapItem>
 #include <QFileDialog>
-
+//#include <QGraphicsSceneMouseEvent>
+//#include <QGraphicsItem>
 
 #include "mainifc.h"
 
@@ -129,6 +130,9 @@ void MainWindow::_AddResultsToScene()
 
             //In die ResultsMap adden
             _ResultPixMaps[j] = item;
+
+            item->setFlag(QGraphicsItem::ItemIsSelectable, true);
+
 
             //QRectF rect = item->boundingRect();
 
