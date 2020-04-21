@@ -16,10 +16,38 @@ namespace Ui {
 class MainWindow;
 }
 
+
+class MySpecialPixMapItem : public QGraphicsPixmapItem
+{
+public:
+    MySpecialPixMapItem(QPixmap &map, const unsigned int Id,MainWindow* winMain);
+
+
+    virtual QRectF boundingRect();
+
+    void mousePressEvent(QGraphicsSceneMouseEvent* event)override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+
+    /**
+     * @brief GetId: returnt die Id.
+     * @return unsigend int ID, der wert des Members _MyId.
+     */
+    unsigned int GetId(){return _MyId;}
+
+private:
+    MainWindow* _MainWin;
+    unsigned int _MyId;
+
+};
+
+
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
+    friend class MySpecialPixMapItem;
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -36,12 +64,20 @@ public:
 
     void SetMainIfc(MainIfc* mainIfc);
 
+protected:
+    /**
+     * @brief _SwitchImgInMainView: Die Methode zeigt das Bild mit der angegebenen Id in dem Hauptview an!
+     *
+     * @param Id: Ist die Id des neu anzuzeigenden Bildes!
+     */
+    void _SwitchImgInMainView(const unsigned int Id);
+
 private:
     Ui::MainWindow *ui;
 
     std::ofstream debugOut;
 
-    std::vector<QGraphicsPixmapItem*> _ResultPixMaps;
+    std::vector<MySpecialPixMapItem*> _ResultPixMaps;
 
     //Pointer
     MainIfc* _MainIfc;
@@ -54,9 +90,9 @@ private:
     QGraphicsView* MyResultsView;
     QGraphicsScene* MyResultsScene;
 
+    MySpecialPixMapItem* MyItem;///< Ist mein Bild in der hauptanzeige
 
-    QGraphicsPixmapItem* MyItem;///< Ist mein Originalbild als Picsmap
-    QImage* MyImage;///< Ist mein Originalbild als QImage
+    QImage* MyImage;///< Ist mein Originalbild (als QImage)
 
     PipeConfig* _PipeConfig;
 
@@ -66,7 +102,8 @@ private:
      * @brief DisplayImage: Bekommt das zu verarbeitende Bild und Zeigt es im view an.
      * @param Img: Das anzuzeigende Bild
      */
-    void DisplayImage(QImage* Img);
+    //void DisplayImage(QImage* Img);
+    void DisplayImage(MySpecialPixMapItem* Img);
 
 
     /**
@@ -84,11 +121,21 @@ private:
 
     void _CleanupResultPixMaps();
 
+
 private slots:
     void _OnMenuBtnLoadImg();
     void _OnExit();
     void _OnImageScaleToFit();
     void _OnMenuBtnPipeConfig();
+
+    /**
+     * @brief _OnBtnLoad: Diese Methode läd ein Projekt
+     */
+    void _OnBtnLoad();//
+    /**
+     * @brief _OnBtnSave: Diese Methode speichern ein Projekt!
+     */
+    void _OnBtnSave();
 
 };
 

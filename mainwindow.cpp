@@ -59,12 +59,18 @@ void MainWindow::_SetupGui()
 
 void MainWindow::_CreateMenus()
 {
-    //Die QAction basteln
-    QMenu* File = new QMenu(tr("File"));
-    QAction * LoadImage = new QAction(tr("Load Image"));
-    File->addAction(LoadImage);
+    //Die QActions basteln
 
+    //File Menu erzeugen
+    QMenu* File = new QMenu(tr("File"));
+
+    //die zur FileMenu zugehörigen Actions erzeugen
+    QAction* Load = new QAction(tr("Load"));
+    QAction* Save = new QAction(tr("Save"));
     QAction* Exit = new QAction(tr("Exit"));
+
+    File->addAction(Load);
+    File->addAction(Save);
     File->addAction(Exit);
     File->setVisible(true);
 
@@ -72,8 +78,9 @@ void MainWindow::_CreateMenus()
 
     QMenu* Project = new QMenu(tr("Project"));
     QAction* PipeConf = new QAction(tr("Pipe Config"));
+    QAction * LoadImage = new QAction(tr("Load Image"));
 
-
+    Project->addAction(LoadImage);
     Project->addAction(PipeConf);
     ui->menuBar->addMenu(Project);
 
@@ -87,6 +94,8 @@ void MainWindow::_CreateMenus()
     //Connects
     connect(LoadImage, SIGNAL(triggered()), this, SLOT(_OnMenuBtnLoadImg()));
     connect(PipeConf, SIGNAL(triggered()), this, SLOT(_OnMenuBtnPipeConfig()));
+    connect(Load, SIGNAL(triggered()), this, SLOT(_OnBtnLoad()));
+    connect(Save, SIGNAL(triggered()), this, SLOT(_OnBtnSave()));
 }
 
 
@@ -94,12 +103,21 @@ void MainWindow::_CreateMenus()
 
 void MainWindow::_CleanupResultPixMaps()
 {
-    for(size_t i=0; i < _ResultPixMaps.size(); i++)
+    size_t len = MyResultsScene->items().size();
+    for(size_t j=0; j < len; j++)
     {
-        MyScene->removeItem(_ResultPixMaps[i]);
+
+        MyResultsScene->removeItem(MyResultsScene->items()[0]);
+    }
+
+
+    for(size_t i = 0; i <  _ResultPixMaps.size(); i++)
+    {
         delete (_ResultPixMaps[i]);
+
         _ResultPixMaps[i] = nullptr;
     }
+
 }
 
 void MainWindow::_AddResultsToScene()
@@ -121,31 +139,27 @@ void MainWindow::_AddResultsToScene()
         //Die Anzahl der Pipes definiert auch die Anzahl der Views bei der Anzeige.
         _ResultPixMaps.resize(results->size()+1);
 
+        int id = 1;
+
         for(size_t j=0; j < results->size(); j++)
         {
             //Das Item basteln
             QPixmap map = QPixmap::fromImage(*results->at(j));
-            QPixmap scaledMap =map.scaled(MyResultsView->width(), MyResultsView->height()/5.0, Qt::KeepAspectRatio);
-            QGraphicsPixmapItem* item = new QGraphicsPixmapItem(scaledMap);    
+            MySpecialPixMapItem* item = new MySpecialPixMapItem(map, id +j,this);
 
             //In die ResultsMap adden
             _ResultPixMaps[j] = item;
 
-            item->setFlag(QGraphicsItem::ItemIsSelectable, true);
+            //Scaled Items für die results view basteln
+            QPixmap scaledMap =map.scaled(MyResultsView->width(), MyResultsView->height()/5, Qt::KeepAspectRatio);
+            MySpecialPixMapItem* scaledItem = new MySpecialPixMapItem(scaledMap, id +j, this);
 
+            scaledItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-            //QRectF rect = item->boundingRect();
-
-
-            item->setPos(0, scaledMap.height()*(j+1) +10);
-
-            ui->ErrorLabel->setText(QString::number(scaledMap.height()));
+            scaledItem->setPos(0, scaledMap.height()*(j+1) +10);
 
             //In die Scene adden!
-            MyResultsScene->addItem(item);
-
-
-
+            MyResultsScene->addItem(scaledItem);
         }
     }
     else
@@ -156,33 +170,36 @@ void MainWindow::_AddResultsToScene()
 
     //Das Item basteln
     QPixmap map = QPixmap::fromImage(*MyImage);
-    QPixmap scaledMap =map.scaled(MyResultsView->width(), MyResultsView->height()/5.0, Qt::KeepAspectRatio);
-    QGraphicsPixmapItem* item = new QGraphicsPixmapItem(scaledMap);
+    MySpecialPixMapItem* item = new MySpecialPixMapItem(map, ORIGINAL_IMG, this);
+    _ResultPixMaps[_ResultPixMaps.size()-1] = item;
+
+
+    QPixmap scaledMap = map.scaled(MyResultsView->width(), MyResultsView->height()/5, Qt::KeepAspectRatio);
+    MySpecialPixMapItem* scaledItem = new MySpecialPixMapItem(scaledMap, ORIGINAL_IMG, this);
+    scaledItem->setPos(0,0);
+    scaledItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
     //In die ResultsMap adden
-    _ResultPixMaps[_ResultPixMaps.size()-1] = item;
-    item->setPos(0,0);
-    MyResultsScene->addItem(item);
+    MyResultsScene->addItem(scaledItem);
 
 }
 
 
 
 //Das geladene Bild in eine Pixmap packen und anzeigen!
-void MainWindow::DisplayImage(QImage *Img)
+void MainWindow::DisplayImage(MySpecialPixMapItem* Img)
 {
     //Aufräumen
     if(MyItem != nullptr)
     {
         //falls ein altes Bild noch in der Scene vorhanden ist, löschen!
         MyScene->removeItem(MyItem);
-        delete(MyItem);
+        //delete(MyItem);
         MyItem = nullptr;
     }
 
     //Show Image in Main View
-    QPixmap map = QPixmap::fromImage(*Img);
-    MyItem = new QGraphicsPixmapItem(map);
+    MyItem = Img;
 
     //Die Dimension der Scene resizen!(Notwendig, sonst wird ständig FitInView gemacht, falls das erste Bild größer war als die View, die restlichen geladenen Bilder aber kleiner sind!)
     QRectF rect = MyItem->boundingRect();
@@ -194,7 +211,8 @@ void MainWindow::DisplayImage(QImage *Img)
     //Wenn die Dimensionen der Scene jene der View übersteigen, Anzeige anpassen!
     MyView->fitInView(MyScene->sceneRect(), Qt::KeepAspectRatio);
 
-    _AddResultsToScene();
+    //Die ResultsView bearbeiten!
+    //_AddResultsToScene();
 
     MyView->show();
     ui->ErrorLabel->setText("Image loaded!");
@@ -213,19 +231,48 @@ void MainWindow::ApplyPipe(std::vector<std::vector<FilterId> > *pipePlan)
 }
 
 
+void MainWindow::_SwitchImgInMainView(const unsigned int Id)
+{
+
+    bool idFound = false;
+
+    MySpecialPixMapItem* itemToShow;
+
+    //Neues Item erzeugen!
+    for(size_t i = 0; i < _ResultPixMaps.size(); i++)
+    {
+        unsigned int lid = _ResultPixMaps[i]->GetId();
+        if(lid == Id)
+        {
+            idFound = true;
+            itemToShow = _ResultPixMaps[i];
+
+            ui->ErrorLabel->setText("Found corresponding Image");
+        }
+    }
+
+    if(idFound)
+    {
+        //Das gefundene Bild anzeigen
+        DisplayImage(itemToShow);
+    }
+}
+
+
 ///////////
 /// Setter
 ///////
 void MainWindow::SetMainIfc(MainIfc *mainIfc)
+
 {
     _MainIfc = mainIfc;
 }
 
 
 
-////////
-//Slots
-////////
+///////////////////
+//MainWindow Slots
+///////////////////
 void MainWindow::_OnMenuBtnLoadImg()
 {
     //Den FileDialog rufen um ein Bild zu suchen!
@@ -242,8 +289,6 @@ void MainWindow::_OnMenuBtnLoadImg()
     }
     else
     {
-        //std::vector<QImage*>* results =  _MainIfc->ProcessImage(&image);
-
         //Aufräumen
         if(MyImage != nullptr)
         {
@@ -251,7 +296,13 @@ void MainWindow::_OnMenuBtnLoadImg()
         }
 
         MyImage = image;
-        DisplayImage(image);
+
+        QPixmap map = QPixmap::fromImage(*image);
+        MySpecialPixMapItem* item = new MySpecialPixMapItem(map, ORIGINAL_IMG, this);
+
+        DisplayImage(item);
+
+        _AddResultsToScene();
     }
 }
 
@@ -270,3 +321,66 @@ void MainWindow::_OnMenuBtnPipeConfig()
 
     _PipeConfig->show();
 }
+
+void MainWindow::_OnBtnLoad()
+{
+    QString filenName = QFileDialog::getOpenFileName(this, tr("Image Selection"), "/home/gerdie/Developement/test/Surface/images/", "Any File (*.*);; Images (*.png *.jpg *.JPG);;");
+}
+
+void MainWindow::_OnBtnSave()
+{
+    QString filenName = QFileDialog::getOpenFileName(this, tr("Image Selection"), "/home/gerdie/Developement/test/Surface/images/", "Any File (*.*);; Images (*.png *.jpg *.JPG);;");
+}
+
+
+
+////////////////////////////////////////////////////////////
+//  Klasse MySpecialPixMapItem
+///////////////////////////////////////////////////////////
+
+//C-TOR
+MySpecialPixMapItem::MySpecialPixMapItem(QPixmap &map, const unsigned int Id, MainWindow* winMain):
+    QGraphicsPixmapItem(map),
+    _MyId(Id),
+    _MainWin(winMain)
+{
+
+}
+
+//MousePressEvent
+void MySpecialPixMapItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
+{
+    //Hier die AnzeigenMethode für den HauptView anwerfen mit der entsprechenden Id!!!!
+    _MainWin->_SwitchImgInMainView(_MyId);
+}
+
+void MySpecialPixMapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    if(isSelected())
+    {
+        painter->setPen(Qt::green);
+    }
+    else
+    {
+        painter->setPen(Qt::blue);
+    }
+
+    painter->drawRect(boundingRect());
+
+    painter->setBrush(Qt::black);
+
+    QGraphicsPixmapItem::paint(painter, option, widget);
+}
+
+
+
+//D-TOR
+//MySpecialPixMapItem::~MySpecialPixMapItem(){}
+
+
+//Überschriebene Methoden
+QRectF MySpecialPixMapItem::boundingRect()
+{
+    return QGraphicsPixmapItem::boundingRect();
+}
+

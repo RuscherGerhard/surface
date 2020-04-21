@@ -11,6 +11,8 @@
 #define UTILS_H
 
 
+#define ORIGINAL_IMG 0
+
 //Eigentlich mutiert es zur ItemID.....
 typedef enum FilterId
 {

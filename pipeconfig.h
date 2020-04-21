@@ -130,7 +130,7 @@ public:
 
     void disolveEdge();
 
-    private:
+private:
     FilterId _id;
     FilterItem* _pre;
     FilterItem* _post;
