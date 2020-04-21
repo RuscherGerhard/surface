@@ -6,6 +6,8 @@
 #include "mainwindow.h"
 #include "pipemanager.h"
 
+#include <tinyxml2.h>
+
 
 class MainIfc
 {
@@ -27,6 +29,9 @@ public:
 
     std::vector<QImage*>* ProcessImage(QImage* image);
 
+    bool Save(const QString &path);
+
+    QString Load(const QString &path);
 
 private:
     QApplication* _QApp;
@@ -36,6 +41,8 @@ private:
     PipeManager* _PipeMan;
 
 };
+
+
 
 
 

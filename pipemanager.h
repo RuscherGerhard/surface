@@ -23,13 +23,15 @@ public:
 
     bool GetPipeExists();
 
+    std::vector<std::vector<FilterId>>* GetPipePlan(){return &_PipePlan;}
+
 private:
 
     std::vector<QImage*> _ResultVector;
 
     std::vector<Pipe*> _Pipes;///< Beherbergt die Einzelnen Bildverarbeitungspipes.
 
-
+    std::vector<std::vector<FilterId>> _PipePlan;
 
     /**
      * @brief _DeletePipes:

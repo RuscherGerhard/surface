@@ -147,10 +147,10 @@ void MainWindow::_AddResultsToScene()
             QPixmap map = QPixmap::fromImage(*results->at(j));
             MySpecialPixMapItem* item = new MySpecialPixMapItem(map, id +j,this);
 
-            //In die ResultsMap adden
+            //In die ResultsMap adden nicht skalliert!!!!
             _ResultPixMaps[j] = item;
 
-            //Scaled Items für die results view basteln
+            //Scaled Items für die results view basteln (skallirte items)
             QPixmap scaledMap =map.scaled(MyResultsView->width(), MyResultsView->height()/5, Qt::KeepAspectRatio);
             MySpecialPixMapItem* scaledItem = new MySpecialPixMapItem(scaledMap, id +j, this);
 
@@ -277,10 +277,6 @@ void MainWindow::_OnMenuBtnLoadImg()
 {
     //Den FileDialog rufen um ein Bild zu suchen!
     QString filenName = QFileDialog::getOpenFileName(this, tr("Image Selection"), "/home/gerdie/Developement/test/Surface/images/", "Any File (*.*);; Images (*.png *.jpg *.JPG);;");
-    //Hier geht Image versuchen zu laden und wenn es klappt dann dann Anzeige aufrufen!
-    //QImage image("/home/gerdie/Developement/test/Surface/images/pic.JPG");
-
-
 
     QImage* image = new QImage(filenName);
     if(image->isNull())
@@ -295,7 +291,12 @@ void MainWindow::_OnMenuBtnLoadImg()
             delete(MyImage);
         }
 
+        //Das aktuelle Bild merken
         MyImage = image;
+
+        //Den Pfad zum aktuellen Bild merken!
+        MyImageAddress.clear();
+        MyImageAddress.append(filenName);
 
         QPixmap map = QPixmap::fromImage(*image);
         MySpecialPixMapItem* item = new MySpecialPixMapItem(map, ORIGINAL_IMG, this);
@@ -325,11 +326,18 @@ void MainWindow::_OnMenuBtnPipeConfig()
 void MainWindow::_OnBtnLoad()
 {
     QString filenName = QFileDialog::getOpenFileName(this, tr("Image Selection"), "/home/gerdie/Developement/test/Surface/images/", "Any File (*.*);; Images (*.png *.jpg *.JPG);;");
+    QString message = _MainIfc->Load(filenName);
+    ui->ErrorLabel->setText(message);
 }
 
 void MainWindow::_OnBtnSave()
 {
     QString filenName = QFileDialog::getOpenFileName(this, tr("Image Selection"), "/home/gerdie/Developement/test/Surface/images/", "Any File (*.*);; Images (*.png *.jpg *.JPG);;");
+    if(!_MainIfc->Save(filenName))
+    {
+        ui->ErrorLabel->setText("Save not possible at the moment! FUCK YOU ASSHOLE!");
+    }
+
 }
 
 

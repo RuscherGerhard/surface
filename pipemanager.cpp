@@ -37,8 +37,11 @@ std::vector<QImage*>* PipeManager::ProcessImage(QImage *imageToProcess)
 
 void PipeManager::UpdatePipes(std::vector<std::vector<FilterId>>* Pipes)
 {
+    //Die Blaupause wegspeichern(Wenn wir das Projekt speichern wollen, ist das wichtig)
+    _PipePlan = *Pipes;
+
     //Aufräumen
-    //_DeleteResults();//Den alten Ergebnisvector abbauen!
+    _DeleteResults();//Den alten Ergebnisvector abbauen!
     _ResultVector.resize(0);
     _DeletePipes();//Die alte Bildverarbeitung abbauen
 

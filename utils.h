@@ -23,4 +23,10 @@ typedef enum FilterId
     Undefined
 }_FilterId;
 
+typedef struct ProjectInfo
+{
+    QString* imagePath;
+    std::vector<std::vector<FilterId>>* PipePlan;
+}_PrtojectInfo;
+
 #endif // UTILS_H

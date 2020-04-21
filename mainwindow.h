@@ -64,6 +64,8 @@ public:
 
     void SetMainIfc(MainIfc* mainIfc);
 
+    QString* GetCurrentImagePath(){return &MyImageAddress;}
+
 protected:
     /**
      * @brief _SwitchImgInMainView: Die Methode zeigt das Bild mit der angegebenen Id in dem Hauptview an!
@@ -85,6 +87,7 @@ private:
 
 
     //Variablen
+    QString MyImageAddress;
     QGraphicsView* MyView;
     QGraphicsScene* MyScene;
     QGraphicsView* MyResultsView;
