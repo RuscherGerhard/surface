@@ -52,6 +52,12 @@ FORMS += \
         mainwindow.ui \
         pipeconfig.ui
 
+LIBS += -ltinyxml2
+
+LIBS += /usr/lib/x86_64-linux-gnu/libtinyxml2.so
+
+INCLUDEPATH += /usr/include/tinyxml2/tinysml2.h
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin

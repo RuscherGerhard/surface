@@ -325,14 +325,14 @@ void MainWindow::_OnMenuBtnPipeConfig()
 
 void MainWindow::_OnBtnLoad()
 {
-    QString filenName = QFileDialog::getOpenFileName(this, tr("Image Selection"), "/home/gerdie/Developement/test/Surface/images/", "Any File (*.*);; Images (*.png *.jpg *.JPG);;");
+    QString filenName = QFileDialog::getOpenFileName(this, tr("Image Selection"), "/home/gerdie/Developement/test/Surface/images/", "Any File (*.*);; XML File (*.xml);;");
     QString message = _MainIfc->Load(filenName);
     ui->ErrorLabel->setText(message);
 }
 
 void MainWindow::_OnBtnSave()
 {
-    QString filenName = QFileDialog::getOpenFileName(this, tr("Image Selection"), "/home/gerdie/Developement/test/Surface/images/", "Any File (*.*);; Images (*.png *.jpg *.JPG);;");
+    QString filenName = QFileDialog::getSaveFileName(this, tr("Image Selection"), "/home/gerdie/Developement/test/Surface/images/", "Any File (*.*);; XML File (*.xml);;");
     if(!_MainIfc->Save(filenName))
     {
         ui->ErrorLabel->setText("Save not possible at the moment! FUCK YOU ASSHOLE!");
