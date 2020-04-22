@@ -64,7 +64,7 @@ public:
 
     void SetMainIfc(MainIfc* mainIfc);
 
-    QString* GetCurrentImagePath(){return &MyImageAddress;}
+    QString* GetCurrentImagePath();//{return &MyImageAddress;}
 
 protected:
     /**

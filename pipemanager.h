@@ -23,7 +23,7 @@ public:
 
     bool GetPipeExists();
 
-    std::vector<std::vector<FilterId>>* GetPipePlan(){return &_PipePlan;}
+    std::vector<std::vector<FilterId>>* GetPipePlan();//{return &_PipePlan;}
 
 private:
 

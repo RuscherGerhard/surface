@@ -92,4 +92,15 @@ void PipeManager::_DeleteResults()
 }
 
 
-
+//Getter...
+std::vector<std::vector<FilterId>>* PipeManager::GetPipePlan()
+{
+    if(_PipePlan.size() > 0)
+    {
+        return &_PipePlan;
+    }
+    else
+    {
+        return nullptr;
+    }
+}

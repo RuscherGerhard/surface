@@ -40,6 +40,11 @@ private:
 
     PipeManager* _PipeMan;
 
+
+    bool _WriteToHrdDrive(ProjectInfo* info, const QString &path);
+
+    bool _ReadFromHardDrive(QString* path);
+
 };
 
 

@@ -268,6 +268,19 @@ void MainWindow::SetMainIfc(MainIfc *mainIfc)
     _MainIfc = mainIfc;
 }
 
+/////////////
+// Getter
+////////////
+
+QString* MainWindow::GetCurrentImagePath()
+{
+    if(MyImageAddress.length() > 0)
+        return &MyImageAddress;
+    else {
+        return nullptr;
+    }
+
+}
 
 
 ///////////////////
