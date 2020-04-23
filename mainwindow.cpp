@@ -259,6 +259,31 @@ void MainWindow::_SwitchImgInMainView(const unsigned int Id)
 }
 
 
+void MainWindow::_PrepareForNewImage(QImage *newImage, const QString &fileName)
+{
+    //Aufräumen
+    if(MyImage != nullptr)
+    {
+        delete(MyImage);
+    }
+
+    //Das aktuelle Bild merken
+    MyImage = newImage;
+
+    //Den Pfad zum aktuellen Bild merken!
+    MyImageAddress.clear();
+    MyImageAddress.append(fileName);
+
+    QPixmap map = QPixmap::fromImage(*newImage);
+    MySpecialPixMapItem* item = new MySpecialPixMapItem(map, ORIGINAL_IMG, this);
+
+    DisplayImage(item);
+
+    _AddResultsToScene();
+
+}
+
+
 ///////////
 /// Setter
 ///////
@@ -283,6 +308,7 @@ QString* MainWindow::GetCurrentImagePath()
 }
 
 
+
 ///////////////////
 //MainWindow Slots
 ///////////////////
@@ -291,32 +317,15 @@ void MainWindow::_OnMenuBtnLoadImg()
     //Den FileDialog rufen um ein Bild zu suchen!
     QString filenName = QFileDialog::getOpenFileName(this, tr("Image Selection"), "/home/gerdie/Developement/test/Surface/images/", "Any File (*.*);; Images (*.png *.jpg *.JPG);;");
 
-    QImage* image = new QImage(filenName);
+    QImage* image = _MainIfc->LoadImg(filenName);
     if(image->isNull())
     {
-        ui->ErrorLabel->setText("No image loaded!");
+        ui->ErrorLabel->setText("ERROR: Could not load image!");
     }
     else
     {
-        //Aufräumen
-        if(MyImage != nullptr)
-        {
-            delete(MyImage);
-        }
+        _PrepareForNewImage(image, filenName);
 
-        //Das aktuelle Bild merken
-        MyImage = image;
-
-        //Den Pfad zum aktuellen Bild merken!
-        MyImageAddress.clear();
-        MyImageAddress.append(filenName);
-
-        QPixmap map = QPixmap::fromImage(*image);
-        MySpecialPixMapItem* item = new MySpecialPixMapItem(map, ORIGINAL_IMG, this);
-
-        DisplayImage(item);
-
-        _AddResultsToScene();
     }
 }
 
@@ -339,8 +348,16 @@ void MainWindow::_OnMenuBtnPipeConfig()
 void MainWindow::_OnBtnLoad()
 {
     QString filenName = QFileDialog::getOpenFileName(this, tr("Image Selection"), "/home/gerdie/Developement/test/Surface/images/", "Any File (*.*);; XML File (*.xml);;");
-    QString message = _MainIfc->Load(filenName);
-    ui->ErrorLabel->setText(message);
+    QImage* img;
+    if(!_MainIfc->Load(filenName, &img))
+    {
+        ui->ErrorLabel->setText("ERROR: could not load project data!");
+    }
+    else
+    {
+        _PrepareForNewImage(img, filenName);
+        ui->ErrorLabel->setText("Project data loaded!");
+    }
 }
 
 void MainWindow::_OnBtnSave()
@@ -365,7 +382,6 @@ MySpecialPixMapItem::MySpecialPixMapItem(QPixmap &map, const unsigned int Id, Ma
     _MyId(Id),
     _MainWin(winMain)
 {
-
 }
 
 //MousePressEvent

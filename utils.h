@@ -23,6 +23,12 @@ typedef enum FilterId
     Undefined
 }_FilterId;
 
+
+/**
+ * TODO
+ * Die Zeiger aus dem Projectinfo gegen Vollwertige Instanzen austauschen und Übergabe der Info durch Referenzübergabe
+ * ersetzen!
+ */
 typedef struct ProjectInfo
 {
     QString* imagePath;

@@ -124,6 +124,7 @@ private:
 
     void _CleanupResultPixMaps();
 
+    void _PrepareForNewImage(QImage* newImage, const QString &fileName);
 
 private slots:
     void _OnMenuBtnLoadImg();

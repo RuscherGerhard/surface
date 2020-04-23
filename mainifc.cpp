@@ -49,26 +49,46 @@ bool MainIfc::Save(const QString &path)
     {
         return _WriteToHrdDrive(&info, path);
     }
-
 }
 
-QString MainIfc::Load(const QString &path)
+bool MainIfc::Load(const QString &path, QImage **img)
 {
-    return QString("Cannot load anything at the moment! Don't get butt plugged!!!!");
+    ProjectInfo info;
+
+    if(_ReadFromHardDrive(info, path))
+    {
+        ForwardPipePlanToPipeManager(info.PipePlan);
+
+
+        *img = LoadImg(*info.imagePath);
+        if(*img != nullptr)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
+    }
+    else
+    {
+
+        return false;
+    }
+
 }
 
 
 bool MainIfc::_WriteToHrdDrive(ProjectInfo *info, const QString &path)
 {
-
-
     tinyxml2::XMLDocument doc(true);
 
     tinyxml2::XMLNode* project = doc.NewElement("Surface_Project");
     doc.InsertFirstChild(project);
 
     //Bildpfad setzen
-    tinyxml2::XMLNode* ImagePath = doc.NewElement("Image Path");
+    tinyxml2::XMLNode* ImagePath = doc.NewElement("Image_Path");
 
     //Pfad nur adden, wenn auch wirklich einer da ist und imagePath kein NullPointer ist
     if(info->imagePath != nullptr)
@@ -78,7 +98,7 @@ bool MainIfc::_WriteToHrdDrive(ProjectInfo *info, const QString &path)
     }
     else
     {
-        tinyxml2::XMLText* noImg = doc.NewText("No Image");
+        tinyxml2::XMLText* noImg = doc.NewText("No_Image");
         ImagePath->InsertEndChild(noImg);
     }
 
@@ -88,14 +108,14 @@ bool MainIfc::_WriteToHrdDrive(ProjectInfo *info, const QString &path)
 
 
     //Pipes abfahren
-    tinyxml2::XMLNode* Pipes = doc.NewElement("Pipe Plan");
+    tinyxml2::XMLNode* Pipes = doc.NewElement("Pipe_Plan");
 
     if(info->PipePlan != nullptr)
     {
 
     for(size_t i = 0; i < info->PipePlan->size(); i++)
     {
-        tinyxml2::XMLNode* A_Pipe = doc.NewElement("A Pipe");
+        tinyxml2::XMLNode* A_Pipe = doc.NewElement("A_Pipe");
         for(size_t j = 0; j < info->PipePlan->at(i).size(); j++)
         {
             FilterId id = info->PipePlan->at(i).at(j);
@@ -132,8 +152,74 @@ bool MainIfc::_WriteToHrdDrive(ProjectInfo *info, const QString &path)
     {
         return false;
     }
+}
+
+bool MainIfc::_ReadFromHardDrive(ProjectInfo &info, const QString &path)
+{
+    tinyxml2::XMLDocument doc;
+    std::string imgPath(path.toStdString());
+    tinyxml2::XMLError error = doc.LoadFile(imgPath.c_str());
+
+    if(!error)//Achtung 0 = ERROR_SUCCES ;)
+    {
 
 
+        tinyxml2::XMLNode* ImgPathNode = doc.FirstChild()->FirstChild();
+
+        QString* pathString = new QString(ImgPathNode->FirstChild()->Value());
+
+        info.imagePath = pathString;
+
+
+        tinyxml2::XMLNode* PipePlanNode = ImgPathNode->NextSibling();
+
+
+        //tinyxml2::XMLNode* currentPipe = FirstPipe;
+
+        std::vector<std::vector<FilterId>>* pipePlan = new std::vector<std::vector<FilterId>>();
+
+        for(tinyxml2::XMLNode* pipeNode = PipePlanNode->FirstChild(); pipeNode != nullptr; pipeNode = pipeNode->NextSibling())
+        {
+            std::vector<FilterId> APipe;
+
+            bool corupt = false;
+            for(tinyxml2::XMLNode* filterNode = pipeNode->FirstChild(); filterNode != nullptr; filterNode = filterNode->NextSibling())
+            {
+                bool ok = true;
+                QString idString(filterNode->Value());
+                int id = idString.toInt(&ok);
+
+                //FAlls wir einen schlechten wert gelesen haben, verwerfen wir hier das weiterer einlesen
+                if(id >= Undefined)
+                {
+                    corupt = true;
+                    break;
+                }
+
+                APipe.push_back(static_cast<FilterId>(id));
+            }
+            if(!corupt)
+                pipePlan->push_back(APipe);
+        }
+        info.PipePlan = pipePlan;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 
+QImage* MainIfc::LoadImg(const QString &path)
+{
+    QImage* img = new QImage(path);
+    if(img->isNull())
+    {
+        delete (img);
+        img = nullptr;
+
+    }
+
+    return img;
+}

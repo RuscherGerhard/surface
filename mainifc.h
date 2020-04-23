@@ -27,11 +27,33 @@ public:
 
     QApplication* GetQApp();
 
+
+    /**
+     * @brief ProcessImage: Die Methode forwarded das Übergebene Bild an die Bildverarbeitung und gibt das Resultat der
+     *                      Bildverarbeitung zurück an den Aufrufer!
+     * @param image:        Das zu verarbeitende Bild!
+     * @return std::vector<QImage*>*: Ein Zeiger auf den Vector mit den Ergebnisbildern der Bildverarbeitung!
+     */
     std::vector<QImage*>* ProcessImage(QImage* image);
 
+    /**
+     * @brief Save: Schnittstelle um Progarmmconfigurationen zu speichern
+     * @param path: Der Pfad, unter dem die Configuration auf der Platte gespeichert werden soll!
+     * @return :    Ergebhnis des speicherns. False heißt Speichern ist fehlgelschlagen!
+     */
     bool Save(const QString &path);
 
-    QString Load(const QString &path);
+    /**
+     * @brief Load: Schnittstelle zum Laden von Programmconfigurationen
+     * @param path: Der Pfad, von wo geladen werden soll!
+     * @param img: QImage Zeiger in dem das Geladene Bild gespeichert werden soll!
+     * @return :    Feedback über den Erfolg des Speicherns. True bedeutet SPeichern war erfolgreich!
+     */
+    bool Load(const QString &path, QImage **img);
+
+
+    QImage* LoadImg(const QString &path);
+
 
 private:
     QApplication* _QApp;
@@ -43,7 +65,7 @@ private:
 
     bool _WriteToHrdDrive(ProjectInfo* info, const QString &path);
 
-    bool _ReadFromHardDrive(QString* path);
+    bool _ReadFromHardDrive(ProjectInfo &info, const QString &path);
 
 };
 
