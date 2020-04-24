@@ -13,6 +13,15 @@
 
 #define ORIGINAL_IMG 0
 
+
+typedef enum Error_Codes
+{
+    ERROR_SUCCESS,
+    TOTAL_ERROR,
+    NO_IMG_FOUND,
+    NO_PIPES_FOUND
+}_Error_Codes;
+
 //Eigentlich mutiert es zur ItemID.....
 typedef enum FilterId
 {
@@ -22,6 +31,7 @@ typedef enum FilterId
     Edge,
     Undefined
 }_FilterId;
+
 
 
 /**
@@ -34,5 +44,7 @@ typedef struct ProjectInfo
     QString* imagePath;
     std::vector<std::vector<FilterId>>* PipePlan;
 }_PrtojectInfo;
+
+
 
 #endif // UTILS_H

@@ -349,15 +349,32 @@ void MainWindow::_OnBtnLoad()
 {
     QString filenName = QFileDialog::getOpenFileName(this, tr("Image Selection"), "/home/gerdie/Developement/test/Surface/images/", "Any File (*.*);; XML File (*.xml);;");
     QImage* img;
-    if(!_MainIfc->Load(filenName, &img))
+
+    ProjectInfo info;
+
+    Error_Codes err = _MainIfc->Load(filenName, &img, info);
+
+    switch(err)
     {
-        ui->ErrorLabel->setText("ERROR: could not load project data!");
-    }
-    else
+    case TOTAL_ERROR: {ui->ErrorLabel->setText("ERROR: could not load project data!"); }
+        break;
+    case NO_IMG_FOUND: {_PipeConfig->DisplayPipeConfig(info.PipePlan); ui->ErrorLabel->setText("No Image found!");}
+        break;
+    case NO_PIPES_FOUND: { _PrepareForNewImage(img, filenName); ui->ErrorLabel->setText("No Pipes Found");}
+        break;
+    case ERROR_SUCCESS:
     {
         _PrepareForNewImage(img, filenName);
+        _PipeConfig->DisplayPipeConfig(info.PipePlan);
+
         ui->ErrorLabel->setText("Project data loaded!");
     }
+
+    default:
+        break;
+
+    }
+
 }
 
 void MainWindow::_OnBtnSave()

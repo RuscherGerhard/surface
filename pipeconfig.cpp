@@ -58,37 +58,60 @@ void PipeConfig::_MakeItemList()
 }
 
 
+FilterItem* PipeConfig::_GenerateFilterItem(FilterId id, QPointF* Pos)
+{
+    FilterItem* item = nullptr;
+    switch (id) {
+    case OpInput:{item = new FilterItem("Input", OpInput ,Qt::white,this);}break;
+    case OpOutput:{item = new FilterItem("Output", OpOutput ,Qt::white,this);}break;
+    case OpBoxFilter:{item = new FilterItem("BoxFilter", OpBoxFilter ,Qt::red,this);}break;
+    default:break;
+
+    }
+
+    if(Pos != nullptr)
+    {
+        item->setPos(*Pos);
+    }
+
+    //In die Config Scene inserten
+    _ConfigScene.addItem(item);
+    //In meinen Vector inserten!
+    _FilterItemVector.push_back(item);
+
+    return item;
+}
+
 //SLOTS
 void PipeConfig::OnBtnAddFilter()
 {
    QList<QListWidgetItem*> selectedItems = ui->FilterList->selectedItems();
 
-   FilterItem* item = nullptr;
+   //FilterItem* item = nullptr;
    QString selectedName = selectedItems[0]->text();
    if(!QString::compare(selectedName, QString("Box Filter")))
    {
         //Methode zum erzeugen eines QGraphicsItems für den Filter!!!!
-       //_CreateFilterItem("Box Filter", BoxFilter, Qt::red);
-        item = new FilterItem(selectedName, OpBoxFilter ,Qt::red,this);
+        //item = new FilterItem(selectedName, OpBoxFilter ,Qt::red,this);
+       _GenerateFilterItem(OpBoxFilter);
    }
    else if(!QString::compare(selectedName, QString("Input")))
    {
        //Methode zum erzeugen eines QGraphicsItems für den Filter!!!!
-      //_CreateFilterItem("Input", Input, Qt::white);
-        item = new FilterItem(selectedName, OpInput ,Qt::white,this);
-        //_InputVector.push_back(item);
+        //item = new FilterItem(selectedName, OpInput ,Qt::white,this);
+       _GenerateFilterItem(OpInput);
    }
    else if(!QString::compare(selectedName, QString("Output")))
    {
-       //Methode zum erzeugen eines QGraphicsItems für den Filter!!!!
-      //_CreateFilterItem("Output", BoxFilter, Qt::white);
-       item = new FilterItem(selectedName, OpOutput ,Qt::white,this);
+       //Methode zum erzeugen eines QGraphicsItems für den Filter!!!!      
+       //item = new FilterItem(selectedName, OpOutput ,Qt::white,this);
+       _GenerateFilterItem(OpOutput);
    }
 
    //In die Config Scene inserten
-   _ConfigScene.addItem(item);
+   //_ConfigScene.addItem(item);
    //In meinen Vector inserten!
-   _FilterItemVector.push_back(item);
+   //_FilterItemVector.push_back(item);
 }
 
 
@@ -264,6 +287,28 @@ void PipeConfig::OnBtnApplyConfig()
 
 }
 
+
+
+void PipeConfig::DisplayPipeConfig(std::vector<std::vector<FilterId> > *PipePlan)
+{
+    for(size_t i = 0; i < PipePlan->size(); i++)
+    {
+        FilterItem* pre = nullptr;
+        for(size_t j = 0; j < PipePlan->at(i).size(); j++)
+        {
+            //Die Filterknoten der Pipe erzeugen!
+            FilterId id = PipePlan->at(i).at(j);
+            pre = _GenerateFilterItem(id);
+
+            if(j > 0)
+            {
+                //Die Kantendarstellungen erzeugen
+            }
+        }
+
+
+    }
+}
 
 /////////////////////
 //Klasse FilterItem

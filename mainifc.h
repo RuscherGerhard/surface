@@ -49,7 +49,7 @@ public:
      * @param img: QImage Zeiger in dem das Geladene Bild gespeichert werden soll!
      * @return :    Feedback über den Erfolg des Speicherns. True bedeutet SPeichern war erfolgreich!
      */
-    bool Load(const QString &path, QImage **img);
+    Error_Codes Load(const QString &path, QImage** img, ProjectInfo &info);
 
 
     QImage* LoadImg(const QString &path);

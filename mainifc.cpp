@@ -51,31 +51,37 @@ bool MainIfc::Save(const QString &path)
     }
 }
 
-bool MainIfc::Load(const QString &path, QImage **img)
+Error_Codes MainIfc::Load(const QString &path, QImage** img, ProjectInfo &info)
 {
-    ProjectInfo info;
+    //ProjectInfo info;
+
+    Error_Codes err = ERROR_SUCCESS;
 
     if(_ReadFromHardDrive(info, path))
     {
-        ForwardPipePlanToPipeManager(info.PipePlan);
+        if(info.PipePlan != nullptr)
+        {
+            if(info.PipePlan->size() <= 0)
+                err = NO_PIPES_FOUND;
+
+            ForwardPipePlanToPipeManager(info.PipePlan);
+        }
 
 
         *img = LoadImg(*info.imagePath);
-        if(*img != nullptr)
+        if(*img == nullptr)
         {
-            return true;
-        }
-        else
-        {
-            return false;
+            err = NO_IMG_FOUND;
         }
 
     }
     else
     {
 
-        return false;
+        err= TOTAL_ERROR;
     }
+
+    return err;
 
 }
 
@@ -163,30 +169,28 @@ bool MainIfc::_ReadFromHardDrive(ProjectInfo &info, const QString &path)
     if(!error)//Achtung 0 = ERROR_SUCCES ;)
     {
 
-
+        //Pfad zum Bild lesen
         tinyxml2::XMLNode* ImgPathNode = doc.FirstChild()->FirstChild();
-
         QString* pathString = new QString(ImgPathNode->FirstChild()->Value());
-
         info.imagePath = pathString;
 
 
+        //Pipe Configurationen lesen
         tinyxml2::XMLNode* PipePlanNode = ImgPathNode->NextSibling();
-
-
-        //tinyxml2::XMLNode* currentPipe = FirstPipe;
-
         std::vector<std::vector<FilterId>>* pipePlan = new std::vector<std::vector<FilterId>>();
+        QString checker(PipePlanNode->FirstChild()->Value());
 
-        for(tinyxml2::XMLNode* pipeNode = PipePlanNode->FirstChild(); pipeNode != nullptr; pipeNode = pipeNode->NextSibling())
+        if(checker.compare("No Pipes"))//Nur durchlaufen falls wir wirklich ne Pipe definiert haben!
         {
+         for(tinyxml2::XMLNode* pipeNode = PipePlanNode->FirstChild(); pipeNode != nullptr; pipeNode = pipeNode->NextSibling())
+         {
             std::vector<FilterId> APipe;
 
             bool corupt = false;
             for(tinyxml2::XMLNode* filterNode = pipeNode->FirstChild(); filterNode != nullptr; filterNode = filterNode->NextSibling())
             {
                 bool ok = true;
-                QString idString(filterNode->Value());
+                QString idString(filterNode->FirstChild()->Value());
                 int id = idString.toInt(&ok);
 
                 //FAlls wir einen schlechten wert gelesen haben, verwerfen wir hier das weiterer einlesen
@@ -200,6 +204,7 @@ bool MainIfc::_ReadFromHardDrive(ProjectInfo &info, const QString &path)
             }
             if(!corupt)
                 pipePlan->push_back(APipe);
+         }
         }
         info.PipePlan = pipePlan;
         return true;

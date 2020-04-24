@@ -150,6 +150,7 @@ public:
     explicit PipeConfig(MainWindow* mainWin, QWidget *parent = nullptr);
     ~PipeConfig();
 
+    void DisplayPipeConfig(std::vector<std::vector<FilterId>>* PipePlan);
 
 protected:
         QGraphicsScene _ConfigScene;
@@ -186,6 +187,8 @@ private:
     void _RemoveFilter(QGraphicsItem* item);
 
     void _Crawler(const int currentVectorIdx, FilterItem* currentItem, std::vector<std::vector<FilterId>>* userData);
+
+    FilterItem* _GenerateFilterItem(FilterId id, QPointF* Pos = nullptr);
 private slots:
     void OnBtnAddFilter();
     void OnBtnRemoveItem();

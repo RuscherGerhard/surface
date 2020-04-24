@@ -41,7 +41,7 @@ void PipeManager::UpdatePipes(std::vector<std::vector<FilterId>>* Pipes)
     _PipePlan = *Pipes;
 
     //Aufräumen
-    _DeleteResults();//Den alten Ergebnisvector abbauen!
+    //_DeleteResults();//Den alten Ergebnisvector abbauen!
     _ResultVector.resize(0);
     _DeletePipes();//Die alte Bildverarbeitung abbauen
 
