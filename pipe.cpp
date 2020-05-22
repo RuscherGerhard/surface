@@ -50,6 +50,17 @@ void Pipe::_AddFilterToPipe(const FilterId id)
         }
 
     }
+    case OpGaussFilter:
+    {
+        toAd = reinterpret_cast<Filter*>(new GaussFilter());
+        if(toAd != nullptr)
+            stream << " BoxFilter |";
+        else {
+            stream << " - |";
+        }
+
+    }
+
     break;
     case OpOutput:
     {

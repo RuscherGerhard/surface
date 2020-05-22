@@ -4,6 +4,7 @@
 #include "filters/boxfilter.h"
 #include "filters/input.h"
 #include "filters/output.h"
+#include "filters/gaussfilter.h"
 
 #define DEBUG_PATH "/home/gerdie/SurfaceDebug.txt"
 
@@ -26,9 +27,10 @@ typedef enum Error_Codes
 typedef enum FilterId
 {
     OpInput,
-    OpBoxFilter,
     OpOutput,
     Edge,
+    OpBoxFilter,
+    OpGaussFilter,
     Undefined
 }_FilterId;
 

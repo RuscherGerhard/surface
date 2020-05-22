@@ -1,8 +1,6 @@
 #ifndef BOXFILTER_H
 #define BOXFILTER_H
-
 #include "filter.h"
-
 class BoxFilter : public Filter
 {
 public:
@@ -16,7 +14,10 @@ public:
     virtual void ProcessImage(QImage* imageTorProcess);
 
 private:
-    QImage* _Filter(QImage* ImageToProcess);
+
+    int _FilterRad;
+
+    QColor _FilterWindow(QImage* ImageToProcess, const int PixelPosX, const int PixelPosY);
 
 };
 

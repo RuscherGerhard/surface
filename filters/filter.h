@@ -18,9 +18,7 @@ protected:
     FilterId _FilterId;
     QImage* _Image=nullptr;///< Copy des Resultatbildes
 
-    //Keine privaten Member gebraucht, da wir hier nur einen Klassenprototypen haben ohne funktionalität. Die Funktionalität
-    //kommt mit den zu implementierenden Methoden in den abgeleiteten Klassen!
-
+    //virtual QColor _FilterWindow(QImage* ImageToProcess, const int PixelPosX, const int PixelPosY)=0;
 
 };
 

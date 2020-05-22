@@ -188,7 +188,20 @@ private:
 
     void _Crawler(const int currentVectorIdx, FilterItem* currentItem, std::vector<std::vector<FilterId>>* userData);
 
-    FilterItem* _GenerateFilterItem(FilterId id, QPointF* Pos = nullptr);
+    /**
+     * @brief _GenerateFilterItem: Diese Methode erstellt FilterItems auf wunsch mit Position und
+     *                              fügt sie der _ConfigScene hinzu!
+     * @param id:   Die FilterId des gewünschten FilterItems
+     * @param posX: X-Coordinate der Position
+     * @param posY: y-Koordinate der Position
+     * @return: Zeiger auf ein Filteritem.Falls die Rückgabe ==nullptr dann Fail!(Für die Kanten beim laden von Projekten)
+     */
+    FilterItem* _GenerateFilterItem(FilterId id, const int posX = 0, const int posY=0);
+
+    /**
+     * @brief _ClreaAllItems: Diese Methode löscht alle Items der _ConfigScene
+     */
+    void _ClearAllItems();
 private slots:
     void OnBtnAddFilter();
     void OnBtnRemoveItem();

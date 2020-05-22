@@ -11,7 +11,7 @@
 
 #include "mainwindow.h"
 
-#define FILTERS "Input"<< "Box Filter"<< "Output"
+#define FILTERS "Input"<< "Box Filter"<< "GaussFilter"<<"Output"
 
 PipeConfig::PipeConfig(MainWindow* mainWin, QWidget *parent) :
     _StartPointSet(false),
@@ -24,7 +24,13 @@ PipeConfig::PipeConfig(MainWindow* mainWin, QWidget *parent) :
 
     ui->setupUi(this);
 
+    //_ConfigScene.setSceneRect(ui->graphicsView->rect());
+
+
+
     ui->graphicsView->setScene(&_ConfigScene);
+
+    ui->graphicsView->setBackgroundBrush(QBrush(Qt::white, Qt::SolidPattern));
 
     _MakeItemList();
 
@@ -39,6 +45,9 @@ PipeConfig::PipeConfig(MainWindow* mainWin, QWidget *parent) :
     connect(ui->DeleteItemBtn, SIGNAL(pressed()), this, SLOT(OnBtnRemoveItem()));
     connect(ui->ApplyPipeBtn, SIGNAL(pressed()), this, SLOT(OnBtnApplyConfig()));
 
+
+    this->show();
+    this->hide();
 }
 
 
@@ -58,20 +67,25 @@ void PipeConfig::_MakeItemList()
 }
 
 
-FilterItem* PipeConfig::_GenerateFilterItem(FilterId id, QPointF* Pos)
+FilterItem* PipeConfig::_GenerateFilterItem(FilterId id, const int posX, const int posY)
 {
+    Qt::GlobalColor GlaettungsFilterFarbe = Qt::red;
+
+
     FilterItem* item = nullptr;
     switch (id) {
     case OpInput:{item = new FilterItem("Input", OpInput ,Qt::white,this);}break;
     case OpOutput:{item = new FilterItem("Output", OpOutput ,Qt::white,this);}break;
-    case OpBoxFilter:{item = new FilterItem("BoxFilter", OpBoxFilter ,Qt::red,this);}break;
+    case OpBoxFilter:{item = new FilterItem("BoxFilter", OpBoxFilter ,GlaettungsFilterFarbe,this);}break;
+    case OpGaussFilter: {item = new FilterItem("GaussFilter", OpGaussFilter ,GlaettungsFilterFarbe,this);}break;
     default:break;
 
     }
 
-    if(Pos != nullptr)
+    if(posX != 0 || posY != 0)
     {
-        item->setPos(*Pos);
+        QPointF Pos(posX, posY);
+        item->setPos(Pos);
     }
 
     //In die Config Scene inserten
@@ -82,7 +96,9 @@ FilterItem* PipeConfig::_GenerateFilterItem(FilterId id, QPointF* Pos)
     return item;
 }
 
+/////////
 //SLOTS
+/////////
 void PipeConfig::OnBtnAddFilter()
 {
    QList<QListWidgetItem*> selectedItems = ui->FilterList->selectedItems();
@@ -107,6 +123,11 @@ void PipeConfig::OnBtnAddFilter()
        //item = new FilterItem(selectedName, OpOutput ,Qt::white,this);
        _GenerateFilterItem(OpOutput);
    }
+   else if(!QString::compare(selectedName, QString("GaussFilter")))
+   {
+       _GenerateFilterItem(OpGaussFilter);
+   }
+
 
    //In die Config Scene inserten
    //_ConfigScene.addItem(item);
@@ -291,22 +312,87 @@ void PipeConfig::OnBtnApplyConfig()
 
 void PipeConfig::DisplayPipeConfig(std::vector<std::vector<FilterId> > *PipePlan)
 {
+    _ClearAllItems();
+
+    int amountOfPipe = static_cast<int>(PipePlan->size());
+
+    int graphicsviewHeight = static_cast<int>(ui->graphicsView->height());
+
+    int graphicsviewWidth = static_cast<int>(ui->graphicsView->width());
+
+    size_t AmountofFilterItems = 0;
+    for(int n = 0; n < amountOfPipe; n++)
+    {
+        size_t pipeSize = PipePlan->at(n).size();
+        if(AmountofFilterItems < pipeSize)
+        {
+            AmountofFilterItems = pipeSize;
+        }
+    }
+    int maxAmountOfFilterItems = static_cast<int>(AmountofFilterItems);
+
+    //Die Abstände zwischen den FilterItems auf in der Graphcsview bestimmen!
+    int aVertStep = static_cast<int>(graphicsviewHeight / amountOfPipe);//Der vertikale Schritt auf der y-Achse, in dem die Pipes positioniert werden!
+    int aHorStep = graphicsviewWidth / maxAmountOfFilterItems;
+
+
+    //Startposition ausrechnen
+    int initPosY = (int)graphicsviewHeight / 2;
+    int initPosX = -(int)graphicsviewWidth / 2;
+
+    int posX = 0;
+    int posY = 0;
+
     for(size_t i = 0; i < PipePlan->size(); i++)
     {
         FilterItem* pre = nullptr;
-        for(size_t j = 0; j < PipePlan->at(i).size(); j++)
+        FilterItem* post = nullptr;
+
+        posX = initPosX;
+        for(int j = 0; j < PipePlan->at(i).size(); j++)
         {
             //Die Filterknoten der Pipe erzeugen!
             FilterId id = PipePlan->at(i).at(j);
-            pre = _GenerateFilterItem(id);
+
+            post = _GenerateFilterItem(id, posX, posY);
 
             if(j > 0)
             {
                 //Die Kantendarstellungen erzeugen
+
+                QLineF line(pre->getOutputCoord(), post->getInputCoord());
+
+                Kante* edge = new Kante(pre, post, line);
+
+                _ConfigScene.addItem(edge);
             }
+
+            pre = post;
+
+            posX = posX + aHorStep;
         }
+          posY = posY + aVertStep;
+
+    }
+}
+
+void PipeConfig::_ClearAllItems()
+{
+    std::vector<FilterItem*>::iterator fit;
+    for(fit = _FilterItemVector.begin(); fit < _FilterItemVector.end(); fit++)
+    {
+        _FilterItemVector.erase(fit);
+    }
+    _FilterItemVector.resize(0);
+     //_ConfigScene.items();
 
 
+    size_t listSize = _ConfigScene.items().size();
+    for(size_t i = 0; i < listSize; i++)
+    {
+        QGraphicsItem* item = _ConfigScene.items()[0];
+        _ConfigScene.removeItem(item);
+        delete(item);
     }
 }
 
@@ -342,6 +428,23 @@ FilterItem::FilterItem(const QString text, const FilterId id, const Qt::GlobalCo
     QPointF outputStart(boundingRect().width()-inOutWidth,(boundingRect().height()/2)-(inOutHeight/2));
     _inputSource  = QRectF(inputStart,QSize(inOutWidth,inOutHeight));
     _outputSource = QRectF(outputStart, QSize(inOutWidth,inOutHeight));
+
+
+    qreal inwidth = _inputSource.width();
+    qreal inheight = _inputSource.height();
+    qreal outwidth = _outputSource.width();
+    qreal outheight = _outputSource.height();
+
+    qreal inPosX = _inputSource.x();
+    qreal inPosY = _inputSource.y();
+    qreal outPosX = _outputSource.x();
+    qreal outPosY = _outputSource.y();
+
+
+    _inputCoord.setX(inPosX);
+    _inputCoord.setY(inPosY+(inheight/2));
+    _outputCoord.setX(_outputSource.x()+outwidth);
+    _outputCoord.setY(_outputSource.y()+outheight/2);
 
 
 }
