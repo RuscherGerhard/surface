@@ -21,10 +21,18 @@ public:
 private:
     int _FilterRad;
 
-    QImage* _XImage;
-    QColor _FilterWindowX(QImage* ImageToProcess, const int PixelPosX, const int PixelPosY);
+    QImage _XImage;
+    QRgb _FilterWindowX(QImage* ImageToProcess, const int PixelPosX, const int PixelPosY);
 
-    QColor _FilterWindowY(QImage* ImageToProcess, const int PixelPosX, const int PixelPosY);
+    QRgb _FilterWindowY(QImage* ImageToProcess, const int PixelPosX, const int PixelPosY);
+
+    /**
+     * @brief _g : Die Methode errechnet die GaußGlocke
+     * @param diff : Eingabe ist der Geometrische Abstand der Pixel im filterfenster die PositionsDiff
+     * @return : ein Wert, der entweder dem Roten-Grünen und oder  Blauem Farbspektrum zugeordnet wird.
+     *
+     */
+    qreal _g(const qreal &diff);
 
 };
 
