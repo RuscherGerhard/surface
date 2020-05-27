@@ -1,20 +1,28 @@
-#include "gaussfilter.h"
-#include <QPixmap>
+#include "gaussfilternl1.h"
+
+/*gaussFilterNL1::gaussFilterNL1()
+{
+
+}*/
+
+#include "gaussfilterNL.h"
+
+//#include <QPixmap>
 #include <math.h>
 
 
-GaussFilter::GaussFilter():
+GaussFilterNL::GaussFilterNL():
     _FilterRad(1)
 {
 
 }
 
-GaussFilter::~GaussFilter()
+GaussFilterNL::~GaussFilterNL()
 {
     //delete (_XImage);
 }
 
-void GaussFilter::ProcessImage(QImage *imageToProcess)
+void GaussFilterNL::ProcessImage(QImage *imageToProcess)
 {
     _Image  = new QImage(*imageToProcess);
     _XImage = QImage(*imageToProcess);
@@ -40,7 +48,7 @@ void GaussFilter::ProcessImage(QImage *imageToProcess)
 }
 
 
-QRgb GaussFilter::_FilterWindowX(QImage* ImageToProcess, const int PixelPosX, const int PixelPosY)
+QRgb GaussFilterNL::_FilterWindowX(QImage* ImageToProcess, const int PixelPosX, const int PixelPosY)
 {
     QColor returnColor;
 
@@ -85,7 +93,7 @@ QRgb GaussFilter::_FilterWindowX(QImage* ImageToProcess, const int PixelPosX, co
 }
 
 
-QRgb GaussFilter::_FilterWindowY(QImage* ImageToProcess, const int PixelPosX, const int PixelPosY)
+QRgb GaussFilterNL::_FilterWindowY(QImage* ImageToProcess, const int PixelPosX, const int PixelPosY)
 {
     QColor returnColor;
 
@@ -128,7 +136,7 @@ QRgb GaussFilter::_FilterWindowY(QImage* ImageToProcess, const int PixelPosX, co
 }
 
 
-qreal GaussFilter::_g(const qreal &diff)
+qreal GaussFilterNL::_g(const qreal &diff)
 {
     qreal omega = 1.5;
 
@@ -136,3 +144,4 @@ qreal GaussFilter::_g(const qreal &diff)
 
     return exp(val);
 }
+

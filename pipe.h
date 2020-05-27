@@ -1,9 +1,13 @@
 #ifndef PIPE_H
 #define PIPE_H
 
-#include <vector>
+//#include <vector>
 
 #include "utils.h"
+//#include "filters/filter.h"
+#include <QImage>
+
+class Filter;
 
 class Pipe
 {

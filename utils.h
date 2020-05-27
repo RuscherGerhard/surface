@@ -1,10 +1,6 @@
 #include <fstream>
-
-
-#include "filters/boxfilter.h"
-#include "filters/input.h"
-#include "filters/output.h"
-#include "filters/gaussfilter.h"
+#include <vector>
+#include <qstring.h>
 
 #define DEBUG_PATH "/home/gerdie/SurfaceDebug.txt"
 
@@ -31,6 +27,7 @@ typedef enum FilterId
     Edge,
     OpBoxFilter,
     OpGaussFilter,
+    OpGaussFilterNL,
     Undefined
 }_FilterId;
 

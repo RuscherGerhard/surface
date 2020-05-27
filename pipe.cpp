@@ -1,5 +1,10 @@
 #include "pipe.h"
 
+#include "filters/boxfilter.h"
+#include "filters/input.h"
+#include "filters/output.h"
+#include "filters/gaussfilter.h"
+#include "filters/gaussfilternl1.h"
 
 
 Pipe::Pipe(std::vector<FilterId>* ids)
@@ -54,7 +59,7 @@ void Pipe::_AddFilterToPipe(const FilterId id)
     {
         toAd = reinterpret_cast<Filter*>(new GaussFilter());
         if(toAd != nullptr)
-            stream << " BoxFilter |";
+            stream << " GaussFilter |";
         else {
             stream << " - |";
         }
@@ -62,6 +67,21 @@ void Pipe::_AddFilterToPipe(const FilterId id)
     }
 
     break;
+
+    case OpGaussFilterNL:
+    {
+        toAd = reinterpret_cast<Filter*>( new GaussFilterNL() );
+        if(toAd != nullptr)
+            stream << " GaussFilterNL |";
+        else {
+            stream << " - |";
+        }
+
+    }
+
+    break;
+
+
     case OpOutput:
     {
         toAd = reinterpret_cast<Filter*>(new output());

@@ -27,6 +27,7 @@ CONFIG += c++11
 SOURCES += \
         filters/boxfilter.cpp \
         filters/gaussfilter.cpp \
+        filters/gaussfilternl1.cpp \
         filters/input.cpp \
         filters/output.cpp \
         main.cpp \
@@ -41,6 +42,7 @@ HEADERS += \
         filters/boxfilter.h \
         filters/filter.h \
         filters/gaussfilter.h \
+        filters/gaussfilternl1.h \
         filters/input.h \
         filters/output.h \
         mainifc.h \
