@@ -28,6 +28,7 @@ typedef enum FilterId
     OpBoxFilter,
     OpGaussFilter,
     OpGaussFilterNL,
+    OpProbAddScramb,
     Undefined
 }_FilterId;
 

@@ -27,9 +27,10 @@ CONFIG += c++11
 SOURCES += \
         filters/boxfilter.cpp \
         filters/gaussfilter.cpp \
-        filters/gaussfilternl1.cpp \
+        filters/gaussnl.cpp \
         filters/input.cpp \
         filters/output.cpp \
+        filters/probaddscrambler.cpp \
         main.cpp \
         mainifc.cpp \
         mainwindow.cpp \
@@ -42,9 +43,10 @@ HEADERS += \
         filters/boxfilter.h \
         filters/filter.h \
         filters/gaussfilter.h \
-        filters/gaussfilternl1.h \
+        filters/gaussnl.h \
         filters/input.h \
         filters/output.h \
+        filters/probaddscrambler.h \
         mainifc.h \
         mainwindow.h \
         pipe.h \

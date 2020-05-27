@@ -1,17 +1,17 @@
 #include "pipeconfig.h"
 #include "ui_pipeconfig.h"
-
-//c++ includes
-//#include "utils.h"
-
+#include "mainwindow.h"
 //qt includes
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 
+//Defines
+#define FILTERS          "-GENERAL-" <<"Input"<<"Output"
+#define SCRAMB           " " << "-SCRAMBLERS-" << "Prob. Add. Scrambler"
+#define SMOOTH_FILTERS   " "         << "-SMOOTHING FILTERS-" <<"Box Filter"<< "GaussFilter"<<"GaussFilterNL"
+#define ENH_EDGE " "         << "-EDGE ENHANCEMENT-"
+#define EDGE_DET " "         << "-EDGE DETECTION-"
 
-#include "mainwindow.h"
-
-#define FILTERS "Input"<< "Box Filter"<< "GaussFilter"<<"Output"
 
 PipeConfig::PipeConfig(MainWindow* mainWin, QWidget *parent) :
     _StartPointSet(false),
@@ -59,9 +59,11 @@ PipeConfig::~PipeConfig()
 
 void PipeConfig::_MakeItemList()
 {
-    _FilterList << FILTERS ;
+    _FilterList << FILTERS<< SCRAMB<< SMOOTH_FILTERS <<ENH_EDGE << EDGE_DET;
+
 
     ui->FilterList->addItems(_FilterList);
+    //ui->FilterList->addItems(_SmoothFilterList);
 
     ui->FilterList->update();
 }
@@ -69,7 +71,9 @@ void PipeConfig::_MakeItemList()
 
 FilterItem* PipeConfig::_GenerateFilterItem(FilterId id, const int posX, const int posY)
 {
+    Qt::GlobalColor ScramblerFarbe = Qt::gray;
     Qt::GlobalColor GlaettungsFilterFarbe = Qt::red;
+    Qt::GlobalColor KantenFinderFarbe = Qt::blue;
 
 
     FilterItem* item = nullptr;
@@ -78,6 +82,8 @@ FilterItem* PipeConfig::_GenerateFilterItem(FilterId id, const int posX, const i
     case OpOutput:{item = new FilterItem("Output", OpOutput ,Qt::white,this);}break;
     case OpBoxFilter:{item = new FilterItem("BoxFilter", OpBoxFilter ,GlaettungsFilterFarbe,this);}break;
     case OpGaussFilter: {item = new FilterItem("GaussFilter", OpGaussFilter ,GlaettungsFilterFarbe,this);}break;
+    case OpGaussFilterNL: {item = new FilterItem("GaussFilterNL", OpGaussFilter ,GlaettungsFilterFarbe,this);}break;
+        case OpProbAddScramb: {item = new FilterItem("ProbabilisticAdditiveScrambler", OpProbAddScramb ,ScramblerFarbe,this);}break;
     default:break;
 
     }
@@ -127,6 +133,15 @@ void PipeConfig::OnBtnAddFilter()
    {
        _GenerateFilterItem(OpGaussFilter);
    }
+   else if(!QString::compare(selectedName, QString("GaussFilterNL")))
+   {
+       _GenerateFilterItem(OpGaussFilterNL);
+   }
+   else if(!QString::compare(selectedName, QString("Prob. Add. Scrambler")))
+   {
+       _GenerateFilterItem(OpProbAddScramb);
+   }
+
 
 
    //In die Config Scene inserten

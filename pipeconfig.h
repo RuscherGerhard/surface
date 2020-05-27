@@ -174,7 +174,7 @@ private:
     Ui::PipeConfig *ui;
 
     QStringList _FilterList;///< wird in der Oberfläche verwendet, in der Auswahlliste für
-
+    //QStringList _SmoothFilterList;///< enthält die Namen aller Glättungsfilter
 
 
     std::vector<FilterItem*> _FilterItemVector;//Speichert Zeiger jedes FilterItem, das in die _ConfigScene eingefügt wurde!

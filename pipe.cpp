@@ -4,7 +4,8 @@
 #include "filters/input.h"
 #include "filters/output.h"
 #include "filters/gaussfilter.h"
-#include "filters/gaussfilternl1.h"
+#include "filters/gaussnl.h"
+#include "filters/probaddscrambler.h"
 
 
 Pipe::Pipe(std::vector<FilterId>* ids)
@@ -70,7 +71,7 @@ void Pipe::_AddFilterToPipe(const FilterId id)
 
     case OpGaussFilterNL:
     {
-        toAd = reinterpret_cast<Filter*>( new GaussFilterNL() );
+        toAd = reinterpret_cast<Filter*>( new GaussNL() );
         if(toAd != nullptr)
             stream << " GaussFilterNL |";
         else {
@@ -79,6 +80,19 @@ void Pipe::_AddFilterToPipe(const FilterId id)
 
     }
 
+    break;
+
+    case OpProbAddScramb :
+    {
+        toAd = reinterpret_cast<Filter*>(new probAddScrambler());
+
+        if(toAd != nullptr)
+            stream << "| Prob. Add. Scrambler \n";
+        else {
+            stream << "| - \n";
+        }
+
+    }
     break;
 
 

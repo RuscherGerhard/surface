@@ -1,20 +1,21 @@
-#ifndef GAUSSFILTERNL1_H
-#define GAUSSFILTERNL1_H
+#ifndef GAUSSNL_H
+#define GAUSSNL_H
+
 #include "filter.h"
-
-/*class gaussFilterNL1
+/*
+class gaussNL
 {
-
+public:
+    gaussNL();
 };*/
 
 
 
-
-class GaussFilterNL : public Filter
+class GaussNL : public Filter
 {
 public:
-    GaussFilterNL();
-    ~GaussFilterNL();
+    GaussNL();
+    ~GaussNL();
 
     virtual QImage* getImage(){return _Image;}
 
@@ -43,5 +44,4 @@ private:
 };
 
 
-
-#endif // GAUSSFILTERNL1_H
+#endif // GAUSSNL_H
