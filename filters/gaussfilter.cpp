@@ -4,7 +4,7 @@
 
 
 GaussFilter::GaussFilter():
-    _FilterRad(1)
+    _FilterRad(2)
 {
 
 }
@@ -56,26 +56,39 @@ QRgb GaussFilter::_FilterWindowX(QImage* ImageToProcess, const int PixelPosX, co
     int end      = ( outEnd > ImageToProcess->width()) ? ImageToProcess->width() : outEnd;
 
 
+    for(int i = start; i <= end; i++)
+    {
+        int xDiff = sqrt((i - PixelPosX)*(i - PixelPosX));
 
-    for(int i = start; i < end; i++)
+        //Das aktuelle gewicht ausrechnen
+        qreal gaussGlocke = _g(xDiff);
+
+        //Gewichte aufsummieren
+        weight = weight + gaussGlocke;
+
+    }
+
+
+
+    for(int i = start; i <= end; i++)
     {
 
-       int xDiff = i - PixelPosX;
+       int xDiff = sqrt((i - PixelPosX)*(i - PixelPosX));
 
        qreal gaussGlocke = _g(xDiff);
 
-       weight = weight + gaussGlocke;
+       //weight = weight + gaussGlocke;
 
-       red   = red   + ImageToProcess->pixelColor(i, PixelPosY).red()  * gaussGlocke;
-       green = green + ImageToProcess->pixelColor(i, PixelPosY).green()* gaussGlocke;
-       blue  = blue  + ImageToProcess->pixelColor(i, PixelPosY).blue() * gaussGlocke;
+       red   = red   + ImageToProcess->pixelColor(i, PixelPosY).red()  * gaussGlocke/ weight;
+       green = green + ImageToProcess->pixelColor(i, PixelPosY).green()* gaussGlocke/ weight;
+       blue  = blue  + ImageToProcess->pixelColor(i, PixelPosY).blue() * gaussGlocke/ weight;
 
 
     }
 
-    int intGreen = (green/weight > 255) ? 255 : static_cast<int>(green/weight);
-    int intRed   = (red/weight > 255) ? 255 : static_cast<int>(red/weight);
-    int intBlue  = (blue/weight > 255) ? 255 : static_cast<int>(blue/weight);
+    int intGreen = (green > 255) ? 255 : static_cast<int>(green);
+    int intRed   = (red > 255) ? 255 : static_cast<int>(red);
+    int intBlue  = (blue > 255) ? 255 : static_cast<int>(blue);
 
     returnColor.setGreen(intGreen);
     returnColor.setRed(intRed);
@@ -101,24 +114,35 @@ QRgb GaussFilter::_FilterWindowY(QImage* ImageToProcess, const int PixelPosX, co
     int end      = ( outEnd > ImageToProcess->height()) ? ImageToProcess->height() : outEnd;
 
 
-    for(int i = start; i < end; i++)
+     for(int i = start; i <= end; i++)
+     {
+         qreal yDiff = sqrt((i - PixelPosY)*(i - PixelPosY));
+
+         //Das aktuelle gewicht ausrechnen
+         qreal gaussGlocke = _g(yDiff);
+
+         //Gewichte aufsummieren
+         weight = weight + gaussGlocke;
+
+     }
+
+    for(int i = start; i <= end; i++)
     {
 
-       int yDiff = i - PixelPosY;
+       qreal yDiff = sqrt((i - PixelPosY)*(i - PixelPosY));
 
-
+       //Das aktuelle gewicht ausrechnen
        qreal gaussGlocke = _g(yDiff);
-       weight = weight + gaussGlocke;
 
-       red   = red   + ImageToProcess->pixelColor(PixelPosX, i).red()  * gaussGlocke;
-       green = green + ImageToProcess->pixelColor(PixelPosX, i).green()* gaussGlocke;
-       blue  = blue  + ImageToProcess->pixelColor(PixelPosX, i).blue() * gaussGlocke;
+       red   = red   + ImageToProcess->pixelColor(PixelPosX, i).red()  * gaussGlocke/weight;
+       green = green + ImageToProcess->pixelColor(PixelPosX, i).green()* gaussGlocke/weight;
+       blue  = blue  + ImageToProcess->pixelColor(PixelPosX, i).blue() * gaussGlocke/weight;
 
     }
 
-    int intGreen = (green/weight > 255) ? 255 : static_cast<int>(green/weight);
-    int intRed   = (red/weight > 255) ? 255 : static_cast<int>(red/weight);
-    int intBlue  = (blue/weight > 255) ? 255 : static_cast<int>(blue/weight);
+    int intGreen = (green > 255) ? 255 : static_cast<int>(green);
+    int intRed   = (red > 255) ? 255 : static_cast<int>(red);
+    int intBlue  = (blue > 255) ? 255 : static_cast<int>(blue);
 
     returnColor.setGreen(intGreen);
     returnColor.setRed(intRed);
@@ -128,11 +152,14 @@ QRgb GaussFilter::_FilterWindowY(QImage* ImageToProcess, const int PixelPosX, co
 }
 
 
-qreal GaussFilter::_g(const qreal &diff)
+double GaussFilter::_g(const qreal &diff)
 {
-    qreal omega = 1.5;
+    double omega = 0.4;
 
-    qreal val = -diff*diff / 2* omega*omega;
+    double nenner = 2* omega*omega;
+    double zaehler = -diff*diff;
+
+    double val = zaehler / nenner;
 
     return exp(val);
 }

@@ -1,7 +1,12 @@
 #include "mainifc.h"
+#include "logger.h"
+
+Logger* Logger::_instance = nullptr;
 
 MainIfc::MainIfc(int argc, char *argv[])
 {
+    //write the Start to the logs
+    Logger::instance()->WriteToLogFile("==================== Start Of Surface ====================");
 
     _QApp = new QApplication(argc, argv);
 
@@ -15,6 +20,11 @@ MainIfc::MainIfc(int argc, char *argv[])
 
 }
 
+MainIfc::~MainIfc()
+{
+    //Write the end of the Programm..... Iff a segfault occurs, this is not written to the logs ;)
+    Logger::instance()->WriteToLogFile("==================== End Of Surface ====================\n");
+}
 
 QApplication* MainIfc::GetQApp()
 {
@@ -28,7 +38,7 @@ void MainIfc::ForwardPipePlanToPipeManager(std::vector<std::vector<FilterId>>* p
 }
 
 
-std::vector<QImage*>* MainIfc::ProcessImage(QImage *image)
+std::vector< std::vector<QImage*>*>* MainIfc::ProcessImage(QImage *image)
 {
     return _PipeMan->ProcessImage(image);
 
@@ -227,4 +237,25 @@ QImage* MainIfc::LoadImg(const QString &path)
     }
 
     return img;
+}
+
+
+QString MainIfc::GetLogFileText()
+{
+    std::ifstream in("SurfaceLog.txt");
+    QString LogText;
+    std::string line;
+    LogText.clear();
+
+    if(in.is_open())
+    {
+        while (getline(in, line))
+        {
+            LogText.append(line.c_str());
+            LogText.append("\n");
+            line.clear();
+        }
+    }
+
+    return LogText;
 }

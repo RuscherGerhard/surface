@@ -31,6 +31,8 @@ SOURCES += \
         filters/input.cpp \
         filters/output.cpp \
         filters/probaddscrambler.cpp \
+        logger.cpp \
+        logview.cpp \
         main.cpp \
         mainifc.cpp \
         mainwindow.cpp \
@@ -47,6 +49,8 @@ HEADERS += \
         filters/input.h \
         filters/output.h \
         filters/probaddscrambler.h \
+        logger.h \
+        logview.h \
         mainifc.h \
         mainwindow.h \
         pipe.h \
@@ -55,6 +59,7 @@ HEADERS += \
         utils.h
 
 FORMS += \
+        logview.ui \
         mainwindow.ui \
         pipeconfig.ui
 

@@ -11,6 +11,7 @@
 Pipe::Pipe(std::vector<FilterId>* ids)
 {
    _FilterQueue.resize(0);
+   _ResultImages.resize(0);
 
    for(size_t i = 0; i< ids->size(); i++)
    {
@@ -55,7 +56,9 @@ void Pipe::_AddFilterToPipe(const FilterId id)
             stream << " - |";
         }
 
-    }
+    }    
+    break;
+
     case OpGaussFilter:
     {
         toAd = reinterpret_cast<Filter*>(new GaussFilter());
@@ -66,7 +69,6 @@ void Pipe::_AddFilterToPipe(const FilterId id)
         }
 
     }
-
     break;
 
     case OpGaussFilterNL:
@@ -133,18 +135,24 @@ void Pipe::_DeleteFilters()
 
 
 //Imageprocessing
-QImage* Pipe::ProcessImage(QImage *imageToProcess)
+std::vector<QImage*>* Pipe::ProcessImage(QImage *imageToProcess)
 {
-    std::vector<Filter*>::iterator fqit;//fuq it!!!!
+    _ResultImages.resize(_FilterQueue.size()-2);
+
+    //std::vector<Filter*>::iterator fqit;//fuq it!!!!
     _WorkingCopy = *imageToProcess;
     QImage* image = &_WorkingCopy;
 
-    for(fqit = _FilterQueue.begin(); fqit < _FilterQueue.end(); fqit++)
+    //for(fqit = _FilterQueue.begin(); fqit < _FilterQueue.end(); fqit++)
+    for(unsigned int i = 0; i < _FilterQueue.size(); i++)
     {
-        Filter* filter = static_cast<Filter*>(*fqit);
+        Filter* filter = _FilterQueue[i];
         filter->ProcessImage(image);
         image = filter->getImage();
+
+        if((i!=0) && (i != _FilterQueue.size()-1))
+            _ResultImages[i-1] = image;
     }
 
-    return image;
+    return &_ResultImages;
 }

@@ -16,6 +16,7 @@ public:
 private:
 
     int _FilterRad;
+    qreal _egalisierungsDivisor;
 
     QColor _FilterWindow(QImage* ImageToProcess, const int PixelPosX, const int PixelPosY);
 

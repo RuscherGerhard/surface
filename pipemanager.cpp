@@ -17,7 +17,7 @@ PipeManager::~PipeManager()
 }
 
 /*Processing*/
-std::vector<QImage*>* PipeManager::ProcessImage(QImage *imageToProcess)
+std::vector<std::vector<QImage*>*>* PipeManager::ProcessImage(QImage *imageToProcess)
 {
     //für den Fall, daß noch keine Pipes aufgesetzt wurden!
     if(_Pipes.size() <= 0)

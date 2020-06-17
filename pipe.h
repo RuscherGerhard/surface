@@ -12,7 +12,7 @@ public:
     Pipe(std::vector<FilterId>* ids);
     ~Pipe();
 
-    QImage* ProcessImage(QImage* imageToProcess);
+    std::vector<QImage*>* ProcessImage(QImage* imageToProcess);
 
 
 
@@ -20,6 +20,8 @@ public:
 private:
     std::vector<Filter*> _FilterQueue;
     QImage _WorkingCopy;
+    std::vector<QImage*> _ResultImages;
+
 
     /**
      * @brief DeleteFilters:

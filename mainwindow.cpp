@@ -6,6 +6,7 @@
 #include <QGraphicsView>
 #include <QGraphicsPixmapItem>
 #include <QFileDialog>
+#include <QTextBrowser>
 //#include <QGraphicsSceneMouseEvent>
 //#include <QGraphicsItem>
 
@@ -69,6 +70,7 @@ void MainWindow::_CreateMenus()
     QAction* Save = new QAction(tr("Save"));
     QAction* Exit = new QAction(tr("Exit"));
 
+
     File->addAction(Load);
     File->addAction(Save);
     File->addAction(Exit);
@@ -85,10 +87,21 @@ void MainWindow::_CreateMenus()
     ui->menuBar->addMenu(Project);
 
 
+    QAction* Log = new QAction(tr("View Log File"));
+    QMenu* Debug = new QMenu("Debug");
+    Debug->addAction(Log);
+    ui->menuBar->addMenu(Debug);
+
+
+
     //PipeConfig aufsetzen
 
     _PipeConfig = new PipeConfig(this);
     _PipeConfig->hide();
+
+    _LogViewer = new LogView();
+    _LogViewer->hide();
+
 
 
     //Connects
@@ -96,6 +109,7 @@ void MainWindow::_CreateMenus()
     connect(PipeConf, SIGNAL(triggered()), this, SLOT(_OnMenuBtnPipeConfig()));
     connect(Load, SIGNAL(triggered()), this, SLOT(_OnBtnLoad()));
     connect(Save, SIGNAL(triggered()), this, SLOT(_OnBtnSave()));
+    connect(Log, SIGNAL(triggered()), this, SLOT(_OnMenuBtnLog()));
 }
 
 
@@ -130,21 +144,21 @@ void MainWindow::_AddResultsToScene()
     _CleanupResultPixMaps();
 
     //Mögliche results in die Scene inserten!
-    std::vector<QImage*>* results = _MainIfc->ProcessImage(MyImage);
+    std::vector<std::vector<QImage*>*>* results = _MainIfc->ProcessImage(MyImage);
 
 
     //Falls wir einen Vector zurückbekommen haben, also falls tatsächlich eine Pipe aufgebaut wurde!!!!
     if(results != nullptr)
     {
         //Die Anzahl der Pipes definiert auch die Anzahl der Views bei der Anzeige.
-        _ResultPixMaps.resize(results->size()+1);
+        _ResultPixMaps.resize(results->at(0)->size()+1);
 
         int id = 1;
 
-        for(size_t j=0; j < results->size(); j++)
+        for(size_t j=0; j < results->at(0)->size(); j++)
         {
             //Das Item basteln
-            QPixmap map = QPixmap::fromImage(*results->at(j));
+            QPixmap map = QPixmap::fromImage(*results->at(0)->at(j));
             MySpecialPixMapItem* item = new MySpecialPixMapItem(map, id +j,this);
 
             //In die ResultsMap adden nicht skalliert!!!!
@@ -387,6 +401,14 @@ void MainWindow::_OnBtnSave()
 
 }
 
+
+void MainWindow::_OnMenuBtnLog()
+{
+    ui->ErrorLabel->setText("Showing Log File");
+
+    _LogViewer->SetTextToBrowser(_MainIfc->GetLogFileText());
+    _LogViewer->show();
+}
 
 
 ////////////////////////////////////////////////////////////

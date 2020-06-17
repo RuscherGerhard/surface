@@ -13,7 +13,7 @@ class MainIfc
 {
 public:
     MainIfc(int argc, char *argv[]);
-
+    ~MainIfc();
 
 
 
@@ -34,7 +34,7 @@ public:
      * @param image:        Das zu verarbeitende Bild!
      * @return std::vector<QImage*>*: Ein Zeiger auf den Vector mit den Ergebnisbildern der Bildverarbeitung!
      */
-    std::vector<QImage*>* ProcessImage(QImage* image);
+    std::vector< std::vector<QImage*>*>* ProcessImage(QImage* image);
 
     /**
      * @brief Save: Schnittstelle um Progarmmconfigurationen zu speichern
@@ -53,6 +53,8 @@ public:
 
 
     QImage* LoadImg(const QString &path);
+
+    QString GetLogFileText();
 
 
 private:

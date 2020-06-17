@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <pipeconfig.h>
+#include <logview.h>
 #include <fstream>
 
 class QImage;
@@ -11,6 +12,7 @@ class QGraphicsScene;
 class QGraphicsPixmapItem;
 class MainIfc;
 class QGridLayout;
+class QTextBrowser;
 
 namespace Ui {
 class MainWindow;
@@ -98,6 +100,7 @@ private:
     QImage* MyImage;///< Ist mein Originalbild (als QImage)
 
     PipeConfig* _PipeConfig;
+    LogView* _LogViewer;
 
     //Methoden
 
@@ -131,6 +134,7 @@ private slots:
     void _OnExit();
     void _OnImageScaleToFit();
     void _OnMenuBtnPipeConfig();
+    void _OnMenuBtnLog();
 
     /**
      * @brief _OnBtnLoad: Diese Methode läd ein Projekt

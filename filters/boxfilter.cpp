@@ -3,6 +3,7 @@
 BoxFilter::BoxFilter()
 {
     _FilterRad = 2;
+    _egalisierungsDivisor = (_FilterRad*2+1)*(_FilterRad*2+1);
 }
 
 
@@ -35,9 +36,6 @@ QColor BoxFilter::_FilterWindow(QImage* imageToProcess,const int PixelPosX, cons
 {
     QColor returnColor;// = imageToProcess->pixel(PixelPosX, PixelPosY);
 
-    qreal egalisierungsDivisor = (_FilterRad*2+1)*(_FilterRad*2+1);
-
-
     int startX = 0;
     int endX = 0;
     int startY = 0;
@@ -55,8 +53,7 @@ QColor BoxFilter::_FilterWindow(QImage* imageToProcess,const int PixelPosX, cons
     qreal red(0);
     qreal green(0);
     qreal blue(0);
-    qreal alpha = QColor(imageToProcess->pixel(0,0)).alphaF();
-
+    qreal alpha = 255.0;//QColor(imageToProcess->pixel(0,0)).alpha();
 
 
     for( int i = startX; i < endX; i++)
@@ -66,29 +63,45 @@ QColor BoxFilter::_FilterWindow(QImage* imageToProcess,const int PixelPosX, cons
 
             QColor color = QColor(imageToProcess->pixel(i,j));
 
-            red = red + color.redF();
-            blue = blue + color.blueF();
-            green = green + color.greenF();
+            red = red + color.red()/_egalisierungsDivisor;
+            blue = blue + color.blue()/_egalisierungsDivisor;
+            green = green + color.green()/_egalisierungsDivisor;
 
         }
-
     }
 
 
-    returnColor.setRedF(0);
-    returnColor.setBlueF(0);
-    returnColor.setGreenF(0);
+    returnColor.setRed(0);
+    returnColor.setBlue(0);
+    returnColor.setGreen(0);
 
 
-    qreal rationedRed = red/egalisierungsDivisor;
+    //qreal rationedRed = red/egalisierungsDivisor;
     /*if(rationedRed <= 0)
     {
         rationedRed = QColor(imageToProcess->pixel(PixelPosX, PixelPosY)).redF();
     }*/
 
-    returnColor.setRedF(rationedRed);
-    returnColor.setBlueF(blue/egalisierungsDivisor);
-    returnColor.setGreenF(green/egalisierungsDivisor);
-    returnColor.setAlphaF(alpha);
+    /*QColor curColor = imageToProcess->pixelColor(PixelPosX, PixelPosY);
+    if(curColor.redF() > red)
+    {
+        red = curColor.redF();
+    }
+
+    if(curColor.greenF() > green)
+    {
+        green=curColor.greenF();
+    }
+
+    if(curColor.blueF() > blue)
+    {
+        blue=curColor.blueF();
+    }*/
+
+
+    returnColor.setRed(red);
+    returnColor.setBlue(blue);
+    returnColor.setGreen(green);
+    returnColor.setAlpha(alpha);
     return returnColor;
 }

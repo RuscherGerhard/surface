@@ -5,7 +5,7 @@
 
 probAddScrambler::probAddScrambler()
 {
-
+        srand(time(NULL));
 }
 
 probAddScrambler::~probAddScrambler()
@@ -20,9 +20,9 @@ void probAddScrambler::ProcessImage(QImage *imageToProcess)
 
     _Image = new QImage(*imageToProcess);
 
-    srand(time(NULL));
 
-    int filterMod(100);
+
+    int filterMod(50);
 
     for(int i = 0; i < width; i++)
     {
@@ -30,9 +30,9 @@ void probAddScrambler::ProcessImage(QImage *imageToProcess)
         {
             QColor currentColor  = imageToProcess->pixelColor(i,j);
 
-            int redRand = currentColor.blue()   + rand() % filterMod;
-            int blueRand = currentColor.green() + rand() % filterMod;
-            int greenRand = currentColor.red()  + rand() % filterMod;
+            int redRand = currentColor.red()  + rand() % filterMod;
+            int blueRand = currentColor.blue()   + rand() % filterMod;
+            int greenRand = currentColor.green() + rand() % filterMod;
 
             int scrambleValBlue  =  (blueRand > 255) ? 255 : blueRand;
             int scrambleValGreen =  (greenRand > 255) ? 255 : greenRand;

@@ -32,7 +32,7 @@ private:
      * @return : ein Wert, der entweder dem Roten-Grünen und oder  Blauem Farbspektrum zugeordnet wird.
      *
      */
-    qreal _g(const qreal &diff);
+    double _g(const qreal &diff);
 
 };
 
