@@ -11,6 +11,7 @@
 #define SMOOTH_FILTERS   " "         << "-SMOOTHING FILTERS-" <<"Box Filter"<< "GaussFilter"<<"GaussFilterNL"
 #define ENH_EDGE " "         << "-EDGE ENHANCEMENT-"
 #define EDGE_DET " "         << "-EDGE DETECTION-"
+#define SEGMENT  " "         << "-SEGMENTATION-" << "Segmentator"
 
 
 PipeConfig::PipeConfig(MainWindow* mainWin, QWidget *parent) :
@@ -59,7 +60,7 @@ PipeConfig::~PipeConfig()
 
 void PipeConfig::_MakeItemList()
 {
-    _FilterList << FILTERS<< SCRAMB<< SMOOTH_FILTERS <<ENH_EDGE << EDGE_DET;
+    _FilterList << FILTERS<< SCRAMB<< SMOOTH_FILTERS <<ENH_EDGE << EDGE_DET << SEGMENT;
 
 
     ui->FilterList->addItems(_FilterList);
@@ -74,6 +75,7 @@ FilterItem* PipeConfig::_GenerateFilterItem(FilterId id, const int posX, const i
     Qt::GlobalColor ScramblerFarbe = Qt::gray;
     Qt::GlobalColor GlaettungsFilterFarbe = Qt::red;
     Qt::GlobalColor KantenFinderFarbe = Qt::blue;
+    Qt::GlobalColor SegmentierFarbe = Qt::green;
 
 
     FilterItem* item = nullptr;
@@ -83,7 +85,8 @@ FilterItem* PipeConfig::_GenerateFilterItem(FilterId id, const int posX, const i
     case OpBoxFilter:{item = new FilterItem("BoxFilter", OpBoxFilter ,GlaettungsFilterFarbe,this);}break;
     case OpGaussFilter: {item = new FilterItem("GaussFilter", OpGaussFilter ,GlaettungsFilterFarbe,this);}break;
     case OpGaussFilterNL: {item = new FilterItem("GaussFilterNL", OpGaussFilter ,GlaettungsFilterFarbe,this);}break;
-        case OpProbAddScramb: {item = new FilterItem("ProbabilisticAdditiveScrambler", OpProbAddScramb ,ScramblerFarbe,this);}break;
+    case OpProbAddScramb: {item = new FilterItem("ProbabilisticAdditiveScrambler", OpProbAddScramb ,ScramblerFarbe,this);}break;
+    case OpSegmentator: {item = new FilterItem("Segmentator", OpSegmentator, SegmentierFarbe, this);}break;
     default:break;
 
     }
@@ -140,6 +143,10 @@ void PipeConfig::OnBtnAddFilter()
    else if(!QString::compare(selectedName, QString("Prob. Add. Scrambler")))
    {
        _GenerateFilterItem(OpProbAddScramb);
+   }
+   else if(!QString::compare(selectedName, QString("Segmentator")))
+   {
+       _GenerateFilterItem(OpSegmentator);
    }
 
 

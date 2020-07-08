@@ -19,6 +19,11 @@ public:
 
 private:
     Ui::LogView *ui;
+
+    QString _LogViewText;
+
+private slots:
+    //void _OnFilterOperatorBtnPushed();
 };
 
 #endif // LOGVIEW_H

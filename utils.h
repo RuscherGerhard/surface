@@ -11,6 +11,12 @@
 #define ORIGINAL_IMG 0
 
 
+//Log File Comment Tags
+#define FILTER "*[Filter]"
+#define BOX_FILTER "*[Box Filter]"
+#define PIPE_MAN "*[Pipe Manager]"
+
+
 typedef enum Error_Codes
 {
     ERROR_SUCCESS,
@@ -29,6 +35,7 @@ typedef enum FilterId
     OpGaussFilter,
     OpGaussFilterNL,
     OpProbAddScramb,
+    OpSegmentator,
     Undefined
 }_FilterId;
 

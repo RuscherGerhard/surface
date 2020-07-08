@@ -1,7 +1,8 @@
 #include "gaussfilter.h"
 #include <QPixmap>
 #include <math.h>
-
+#include "logger.h"
+#include "utils.h"
 
 GaussFilter::GaussFilter():
     _FilterRad(2)
@@ -42,13 +43,15 @@ void GaussFilter::ProcessImage(QImage *imageToProcess)
 
 QRgb GaussFilter::_FilterWindowX(QImage* ImageToProcess, const int PixelPosX, const int PixelPosY)
 {
+    Logger* log = Logger::instance();
+
     QColor returnColor;
 
      qreal red   = 0;
      qreal blue  = 0;
      qreal green = 0;
 
-    int weight = 0;
+    qreal weight = 0;
 
     int outStart = (PixelPosX - _FilterRad - 1);
     int outEnd   = (PixelPosX + _FilterRad);
@@ -58,7 +61,7 @@ QRgb GaussFilter::_FilterWindowX(QImage* ImageToProcess, const int PixelPosX, co
 
     for(int i = start; i <= end; i++)
     {
-        int xDiff = sqrt((i - PixelPosX)*(i - PixelPosX));
+        qreal xDiff = sqrt((i - PixelPosX)*(i - PixelPosX));
 
         //Das aktuelle gewicht ausrechnen
         qreal gaussGlocke = _g(xDiff);
@@ -68,14 +71,24 @@ QRgb GaussFilter::_FilterWindowX(QImage* ImageToProcess, const int PixelPosX, co
 
     }
 
+    QString num;
+    num.clear();
+    num.append(FILTER);
+    num.append("Sum of Weights: ");
+    num.append(QString::number(weight));
 
+    log->WriteToLogFile(num.toStdString().c_str());
 
+    QString reds;
+    reds.append("Values of red: \n");
     for(int i = start; i <= end; i++)
     {
 
-       int xDiff = sqrt((i - PixelPosX)*(i - PixelPosX));
+       qreal xDiff = sqrt((i - PixelPosX)*(i - PixelPosX));
 
        qreal gaussGlocke = _g(xDiff);
+
+
 
        //weight = weight + gaussGlocke;
 
@@ -83,12 +96,20 @@ QRgb GaussFilter::_FilterWindowX(QImage* ImageToProcess, const int PixelPosX, co
        green = green + ImageToProcess->pixelColor(i, PixelPosY).green()* gaussGlocke/ weight;
        blue  = blue  + ImageToProcess->pixelColor(i, PixelPosY).blue() * gaussGlocke/ weight;
 
+       reds.append(QString::number(red)+", ");
 
     }
+
+
 
     int intGreen = (green > 255) ? 255 : static_cast<int>(green);
     int intRed   = (red > 255) ? 255 : static_cast<int>(red);
     int intBlue  = (blue > 255) ? 255 : static_cast<int>(blue);
+
+    reds.append(QString::number(intRed));
+    reds.append("\n");
+
+    log->WriteToLogFile(reds.toStdString().c_str());
 
     returnColor.setGreen(intGreen);
     returnColor.setRed(intRed);

@@ -6,7 +6,7 @@
 #include "filters/gaussfilter.h"
 #include "filters/gaussnl.h"
 #include "filters/probaddscrambler.h"
-
+#include "filters/segmentator.h"
 
 Pipe::Pipe(std::vector<FilterId>* ids)
 {
@@ -110,7 +110,24 @@ void Pipe::_AddFilterToPipe(const FilterId id)
 
     }
     break;
+
+    case OpSegmentator:
+    {
+        toAd = reinterpret_cast<Filter*>(new segmentator());
+        toAd->setFilterId(OpSegmentator);
+
+        if(toAd != nullptr)
+            stream << "| Segmentator \n";
+        else {
+            stream << "| - \n";
+        }
+
+    }
+    break;
+
+
     default: break;
+
 
     }
 

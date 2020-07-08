@@ -31,6 +31,7 @@ SOURCES += \
         filters/input.cpp \
         filters/output.cpp \
         filters/probaddscrambler.cpp \
+        filters/segmentator.cpp \
         logger.cpp \
         logview.cpp \
         main.cpp \
@@ -49,6 +50,7 @@ HEADERS += \
         filters/input.h \
         filters/output.h \
         filters/probaddscrambler.h \
+        filters/segmentator.h \
         logger.h \
         logview.h \
         mainifc.h \
