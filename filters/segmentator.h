@@ -19,8 +19,16 @@ public:
 private:
     QImage _grayImg;
 
+    unsigned int* peaks;
+
+    unsigned int _Alfa;
+    unsigned int _Beta;
 
     void _ColorImgToGrayValImg(QImage* imageToProcess);
+
+    void _AlphaBetaSelect();
+
+    void _Segmentate();
 };
 
 #endif // SEGMENTATOR_H
