@@ -7,6 +7,7 @@
 #include "filters/gaussnl.h"
 #include "filters/probaddscrambler.h"
 #include "filters/segmentator.h"
+#include "filters/linefindertransversal.h"
 
 Pipe::Pipe(std::vector<FilterId>* ids)
 {
@@ -125,6 +126,19 @@ void Pipe::_AddFilterToPipe(const FilterId id)
     }
     break;
 
+    case OpLineFindTransVers:
+    {
+        toAd = reinterpret_cast<Filter*>(new LineFinderTransversal());
+        toAd->setFilterId(OpLineFindTransVers);
+
+        if(toAd != nullptr)
+            stream << "| LineFinderTransversal \n";
+        else {
+            stream << "| - \n";
+        }
+
+    }
+    break;
 
     default: break;
 

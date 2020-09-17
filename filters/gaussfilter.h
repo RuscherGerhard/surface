@@ -22,9 +22,9 @@ private:
     int _FilterRad;
 
     QImage _XImage;
-    QRgb _FilterWindowX(QImage* ImageToProcess, const int PixelPosX, const int PixelPosY);
+    int _FilterWindowX(QImage* ImageToProcess, const int PixelPosX, const int PixelPosY);
 
-    QRgb _FilterWindowY(QImage* ImageToProcess, const int PixelPosX, const int PixelPosY);
+    int _FilterWindowY(QImage* ImageToProcess, const int PixelPosX, const int PixelPosY);
 
     /**
      * @brief _g : Die Methode errechnet die GaußGlocke

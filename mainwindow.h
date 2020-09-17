@@ -5,6 +5,7 @@
 #include <pipeconfig.h>
 #include <logview.h>
 #include <fstream>
+#include "histogram.h"
 
 class QImage;
 class QGraphicsView;
@@ -36,9 +37,13 @@ public:
      */
     unsigned int GetId(){return _MyId;}
 
+    QPixmap* getPixmap(){return &_map;}
+
 private:
     MainWindow* _MainWin;
     unsigned int _MyId;
+
+    QPixmap _map;
 
 };
 
@@ -101,6 +106,9 @@ private:
 
     PipeConfig* _PipeConfig;
     LogView* _LogViewer;
+    Histogram* _Histo;
+
+    bool _HistoOpen;
 
     //Methoden
 
@@ -129,12 +137,21 @@ private:
 
     void _PrepareForNewImage(QImage* newImage, const QString &fileName);
 
+
+    /**
+     * @brief _OpenHistogram: Die Methode erstellt das Histogram des im MainView angezeigten Bildes!
+     */
+    void _OpenHistogram(QImage* img=nullptr);
+    void _OpenHistogram(QPixmap* img);
+
 private slots:
     void _OnMenuBtnLoadImg();
     void _OnExit();
     void _OnImageScaleToFit();
     void _OnMenuBtnPipeConfig();
     void _OnMenuBtnLog();
+    void _OnMenuBtnHistogram();
+    void _OnHistoClosed();
 
     /**
      * @brief _OnBtnLoad: Diese Methode läd ein Projekt

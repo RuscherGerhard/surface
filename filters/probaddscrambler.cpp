@@ -22,7 +22,7 @@ void probAddScrambler::ProcessImage(QImage *imageToProcess)
 
 
 
-    int filterMod(50);
+    int filterMod(100);
 
     for(int i = 0; i < width; i++)
     {

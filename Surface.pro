@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT      +=  charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -29,9 +30,11 @@ SOURCES += \
         filters/gaussfilter.cpp \
         filters/gaussnl.cpp \
         filters/input.cpp \
+        filters/linefindertransversal.cpp \
         filters/output.cpp \
         filters/probaddscrambler.cpp \
         filters/segmentator.cpp \
+        histogram.cpp \
         logger.cpp \
         logview.cpp \
         main.cpp \
@@ -45,12 +48,15 @@ SOURCES += \
 HEADERS += \
         filters/boxfilter.h \
         filters/filter.h \
+        filters/filterutils.h \
         filters/gaussfilter.h \
         filters/gaussnl.h \
         filters/input.h \
+        filters/linefindertransversal.h \
         filters/output.h \
         filters/probaddscrambler.h \
         filters/segmentator.h \
+        histogram.h \
         logger.h \
         logview.h \
         mainifc.h \

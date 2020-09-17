@@ -7,6 +7,8 @@
 #include <QGraphicsPixmapItem>
 #include <QFileDialog>
 #include <QTextBrowser>
+#include <utils.h>
+
 //#include <QGraphicsSceneMouseEvent>
 //#include <QGraphicsItem>
 
@@ -17,7 +19,8 @@ MainWindow::MainWindow( QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     MyImage(nullptr),
-    MyItem(nullptr)
+    MyItem(nullptr),
+    _HistoOpen(false)
 {
 
     ui->setupUi(this);
@@ -58,6 +61,7 @@ void MainWindow::_SetupGui()
    ui->ErrorLabel->setText(tr("No Image loaded."));
 }
 
+
 void MainWindow::_CreateMenus()
 {
     //Die QActions basteln
@@ -86,10 +90,12 @@ void MainWindow::_CreateMenus()
     Project->addAction(PipeConf);
     ui->menuBar->addMenu(Project);
 
-
+    //Debug Menü aufsetzen
     QAction* Log = new QAction(tr("View Log File"));
+    QAction* Histo = new QAction(tr("Histogram View"));
     QMenu* Debug = new QMenu("Debug");
     Debug->addAction(Log);
+    Debug->addAction(Histo);
     ui->menuBar->addMenu(Debug);
 
 
@@ -102,6 +108,8 @@ void MainWindow::_CreateMenus()
     _LogViewer = new LogView();
     _LogViewer->hide();
 
+    _Histo = new Histogram();
+
 
 
     //Connects
@@ -110,6 +118,9 @@ void MainWindow::_CreateMenus()
     connect(Load, SIGNAL(triggered()), this, SLOT(_OnBtnLoad()));
     connect(Save, SIGNAL(triggered()), this, SLOT(_OnBtnSave()));
     connect(Log, SIGNAL(triggered()), this, SLOT(_OnMenuBtnLog()));
+    connect(Histo, SIGNAL(triggered()), this, SLOT(_OnMenuBtnHistogram()));
+    connect(_Histo, SIGNAL(HistoClosed()), this, SLOT(_OnHistoClosed()));
+
 }
 
 
@@ -212,6 +223,8 @@ void MainWindow::DisplayImage(MySpecialPixMapItem* Img)
         MyItem = nullptr;
     }
 
+
+
     //Show Image in Main View
     MyItem = Img;
 
@@ -230,6 +243,11 @@ void MainWindow::DisplayImage(MySpecialPixMapItem* Img)
 
     MyView->show();
     ui->ErrorLabel->setText("Image loaded!");
+
+    if(_HistoOpen)
+    {
+        _OpenHistogram(MyItem->getPixmap());
+    }
 }
 
 
@@ -269,8 +287,11 @@ void MainWindow::_SwitchImgInMainView(const unsigned int Id)
     {
         //Das gefundene Bild anzeigen
         DisplayImage(itemToShow);
+
+
     }
 }
+
 
 
 void MainWindow::_PrepareForNewImage(QImage *newImage, const QString &fileName)
@@ -297,6 +318,34 @@ void MainWindow::_PrepareForNewImage(QImage *newImage, const QString &fileName)
 
 }
 
+
+void MainWindow::_OpenHistogram(QImage* img)
+{
+    ui->ErrorLabel->setText("Showing Histogram!");
+    if(img == nullptr && MyItem != nullptr)
+    {
+        img = MyImage;
+    }
+
+    if(img != nullptr)
+    {
+        _Histo->hide();
+        _Histo->ShowHisto(img);
+        _Histo->show();
+    }
+    else {
+        {
+            ui->ErrorLabel->setText("No Image to show histogram for!");
+        }
+    }
+
+}
+
+void MainWindow::_OpenHistogram(QPixmap* img)
+{
+    QImage image = img->toImage();
+    _OpenHistogram(&image);
+}
 
 ///////////
 /// Setter
@@ -330,6 +379,11 @@ void MainWindow::_OnMenuBtnLoadImg()
 {
     //Den FileDialog rufen um ein Bild zu suchen!
     QString filenName = QFileDialog::getOpenFileName(this, tr("Image Selection"), "/home/gerdie/Developement/test/Surface/images/", "Any File (*.*);; Images (*.png *.jpg *.JPG);;");
+    if(!filenName.compare(""))
+    {
+        ui->ErrorLabel->setText("ERROR: No image selected!");
+        return;
+    }
 
     QImage* image = _MainIfc->LoadImg(filenName);
     if(image->isNull())
@@ -410,6 +464,32 @@ void MainWindow::_OnMenuBtnLog()
     _LogViewer->show();
 }
 
+void MainWindow::_OnMenuBtnHistogram()
+{
+    _OpenHistogram();
+
+    _HistoOpen = true;
+
+/*    ui->ErrorLabel->setText("Showing Histogram!");
+
+    if(MyItem != nullptr)
+    {
+        _Histo->ShowHisto(MyImage);
+        _Histo->show();
+    }
+    else {
+        {
+            ui->ErrorLabel->setText("No Image to show histogram for!");
+        }
+    }
+    */
+}
+
+void MainWindow::_OnHistoClosed()
+{
+    _HistoOpen = false;
+}
+
 
 ////////////////////////////////////////////////////////////
 //  Klasse MySpecialPixMapItem
@@ -418,6 +498,7 @@ void MainWindow::_OnMenuBtnLog()
 //C-TOR
 MySpecialPixMapItem::MySpecialPixMapItem(QPixmap &map, const unsigned int Id, MainWindow* winMain):
     QGraphicsPixmapItem(map),
+    _map(map),
     _MyId(Id),
     _MainWin(winMain)
 {

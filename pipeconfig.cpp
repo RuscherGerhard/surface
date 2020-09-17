@@ -12,6 +12,7 @@
 #define ENH_EDGE " "         << "-EDGE ENHANCEMENT-"
 #define EDGE_DET " "         << "-EDGE DETECTION-"
 #define SEGMENT  " "         << "-SEGMENTATION-" << "Segmentator"
+#define LINEDETECT " "    << "-LINEDETECTION-" << "TransversLineFind"
 
 
 PipeConfig::PipeConfig(MainWindow* mainWin, QWidget *parent) :
@@ -60,7 +61,7 @@ PipeConfig::~PipeConfig()
 
 void PipeConfig::_MakeItemList()
 {
-    _FilterList << FILTERS<< SCRAMB<< SMOOTH_FILTERS <<ENH_EDGE << EDGE_DET << SEGMENT;
+    _FilterList << FILTERS<< SCRAMB<< SMOOTH_FILTERS <<ENH_EDGE << EDGE_DET << SEGMENT << LINEDETECT;
 
 
     ui->FilterList->addItems(_FilterList);
@@ -76,6 +77,7 @@ FilterItem* PipeConfig::_GenerateFilterItem(FilterId id, const int posX, const i
     Qt::GlobalColor GlaettungsFilterFarbe = Qt::red;
     Qt::GlobalColor KantenFinderFarbe = Qt::blue;
     Qt::GlobalColor SegmentierFarbe = Qt::green;
+    Qt::GlobalColor LineDetectFarbe = Qt::yellow;
 
 
     FilterItem* item = nullptr;
@@ -87,6 +89,7 @@ FilterItem* PipeConfig::_GenerateFilterItem(FilterId id, const int posX, const i
     case OpGaussFilterNL: {item = new FilterItem("GaussFilterNL", OpGaussFilter ,GlaettungsFilterFarbe,this);}break;
     case OpProbAddScramb: {item = new FilterItem("ProbabilisticAdditiveScrambler", OpProbAddScramb ,ScramblerFarbe,this);}break;
     case OpSegmentator: {item = new FilterItem("Segmentator", OpSegmentator, SegmentierFarbe, this);}break;
+    case OpLineFindTransVers: {item = new FilterItem("TransversLineFind", OpLineFindTransVers, LineDetectFarbe, this);}break;
     default:break;
 
     }
@@ -147,6 +150,10 @@ void PipeConfig::OnBtnAddFilter()
    else if(!QString::compare(selectedName, QString("Segmentator")))
    {
        _GenerateFilterItem(OpSegmentator);
+   }
+   else if(!QString::compare(selectedName, QString("TransversLineFind")))
+   {
+       _GenerateFilterItem(OpLineFindTransVers);
    }
 
 

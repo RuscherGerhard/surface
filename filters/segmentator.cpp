@@ -1,8 +1,9 @@
 #include "segmentator.h"
 
 #include "logger.h"
+#include "filterutils.h"
 
-typedef struct comp
+/*typedef struct comp
 {
     unsigned char red;
     unsigned char green;
@@ -14,7 +15,7 @@ typedef union myColor
 {
     unsigned int color;
     comp components;
-}_MyColor;
+}_MyColor;*/
 
 segmentator::segmentator()
 {
@@ -162,7 +163,7 @@ void segmentator::_AlphaBetaSelect()
     _Alfa = alfa;
     _Beta = beta;
 
-    Logger::instance()->WriteToLogFile(std::to_string(alfa).append(" ").append(std::to_string(beta)).c_str());
+    //Logger::instance()->WriteToLogFile(std::to_string(alfa).append(" ").append(std::to_string(beta)).c_str());
 }
 
 void segmentator::_Segmentate()

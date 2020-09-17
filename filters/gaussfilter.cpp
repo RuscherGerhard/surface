@@ -3,9 +3,10 @@
 #include <math.h>
 #include "logger.h"
 #include "utils.h"
+#include "filterutils.h"
 
 GaussFilter::GaussFilter():
-    _FilterRad(2)
+    _FilterRad(5)
 {
 
 }
@@ -36,12 +37,10 @@ void GaussFilter::ProcessImage(QImage *imageToProcess)
             _Image->setPixel(k, l, _FilterWindowY(&_XImage, k,l));
         }
     }
-
-
 }
 
 
-QRgb GaussFilter::_FilterWindowX(QImage* ImageToProcess, const int PixelPosX, const int PixelPosY)
+int GaussFilter::_FilterWindowX(QImage* ImageToProcess, const int PixelPosX, const int PixelPosY)
 {
     Logger* log = Logger::instance();
 
@@ -81,20 +80,27 @@ QRgb GaussFilter::_FilterWindowX(QImage* ImageToProcess, const int PixelPosX, co
 
     QString reds;
     reds.append("Values of red: \n");
-    for(int i = start; i <= end; i++)
+    for(int j = start; j <= end; j++)
     {
 
-       qreal xDiff = sqrt((i - PixelPosX)*(i - PixelPosX));
+       qreal xDiff = sqrt((j - PixelPosX)*(j - PixelPosX));
 
        qreal gaussGlocke = _g(xDiff);
 
 
-
        //weight = weight + gaussGlocke;
 
-       red   = red   + ImageToProcess->pixelColor(i, PixelPosY).red()  * gaussGlocke/ weight;
-       green = green + ImageToProcess->pixelColor(i, PixelPosY).green()* gaussGlocke/ weight;
-       blue  = blue  + ImageToProcess->pixelColor(i, PixelPosY).blue() * gaussGlocke/ weight;
+       myColor tmp;
+       tmp.color = ImageToProcess->pixel(j, PixelPosY);
+
+       red   = red   + tmp.components.red  * gaussGlocke/ weight;
+       green = green + tmp.components.green * gaussGlocke/ weight;
+       blue  = blue  + tmp.components.blue * gaussGlocke/ weight;
+
+
+       /*red   = red   + ImageToProcess->pixelColor(j, PixelPosY).red()  * gaussGlocke/ weight;
+       green = green + ImageToProcess->pixelColor(j, PixelPosY).green()* gaussGlocke/ weight;
+       blue  = blue  + ImageToProcess->pixelColor(j, PixelPosY).blue() * gaussGlocke/ weight;*/
 
        reds.append(QString::number(red)+", ");
 
@@ -102,24 +108,33 @@ QRgb GaussFilter::_FilterWindowX(QImage* ImageToProcess, const int PixelPosX, co
 
 
 
-    int intGreen = (green > 255) ? 255 : static_cast<int>(green);
-    int intRed   = (red > 255) ? 255 : static_cast<int>(red);
-    int intBlue  = (blue > 255) ? 255 : static_cast<int>(blue);
+    int intGreen = (green > 255.0) ? 255 : static_cast<int>(green);
+    int intRed   = (red > 255.0) ? 255 : static_cast<int>(red);
+    int intBlue  = (blue > 255.0) ? 255 : static_cast<int>(blue);
 
     reds.append(QString::number(intRed));
     reds.append("\n");
 
     log->WriteToLogFile(reds.toStdString().c_str());
 
-    returnColor.setGreen(intGreen);
+    /*returnColor.setGreen(intGreen);
     returnColor.setRed(intRed);
-    returnColor.setBlue(intBlue);
+    returnColor.setBlue(intBlue);*/
 
-    return returnColor.rgb();
+    //return returnColor.rgb();
+
+    myColor color;
+    color.components.red = intRed;
+    color.components.green = intGreen;
+    color.components.blue = intBlue;
+    color.components.alfa = 255;
+
+    return color.color;
+
 }
 
 
-QRgb GaussFilter::_FilterWindowY(QImage* ImageToProcess, const int PixelPosX, const int PixelPosY)
+int GaussFilter::_FilterWindowY(QImage* ImageToProcess, const int PixelPosX, const int PixelPosY)
 {
     QColor returnColor;
 
@@ -147,29 +162,46 @@ QRgb GaussFilter::_FilterWindowY(QImage* ImageToProcess, const int PixelPosX, co
 
      }
 
-    for(int i = start; i <= end; i++)
+    for(int j = start; j <= end; j++)
     {
 
-       qreal yDiff = sqrt((i - PixelPosY)*(i - PixelPosY));
+       qreal yDiff = sqrt((j - PixelPosY)*(j - PixelPosY));
 
        //Das aktuelle gewicht ausrechnen
        qreal gaussGlocke = _g(yDiff);
 
-       red   = red   + ImageToProcess->pixelColor(PixelPosX, i).red()  * gaussGlocke/weight;
+
+       myColor tmp;
+       tmp.color = ImageToProcess->pixel(PixelPosX, j);
+
+       red   = red   + tmp.components.red  * gaussGlocke/ weight;
+       green = green + tmp.components.green * gaussGlocke/ weight;
+       blue  = blue  + tmp.components.blue * gaussGlocke/ weight;
+
+
+       /*red   = red   + ImageToProcess->pixelColor(PixelPosX, i).red()  * gaussGlocke/weight;
        green = green + ImageToProcess->pixelColor(PixelPosX, i).green()* gaussGlocke/weight;
-       blue  = blue  + ImageToProcess->pixelColor(PixelPosX, i).blue() * gaussGlocke/weight;
+       blue  = blue  + ImageToProcess->pixelColor(PixelPosX, i).blue() * gaussGlocke/weight;*/
 
     }
 
-    int intGreen = (green > 255) ? 255 : static_cast<int>(green);
-    int intRed   = (red > 255) ? 255 : static_cast<int>(red);
-    int intBlue  = (blue > 255) ? 255 : static_cast<int>(blue);
+    int intGreen = (green > 25.0) ? 255 : static_cast<int>(green);
+    int intRed   = (red > 255.0) ? 255 : static_cast<int>(red);
+    int intBlue  = (blue > 255.0) ? 255 : static_cast<int>(blue);
 
     returnColor.setGreen(intGreen);
     returnColor.setRed(intRed);
     returnColor.setBlue(intBlue);
 
-    return returnColor.rgb();
+    //return returnColor.rgb();
+
+    myColor color;
+    color.components.green = intGreen;
+    color.components.blue = intBlue;
+    color.components.red = intRed;
+    color.components.alfa = 255;
+
+    return color.color;
 }
 
 

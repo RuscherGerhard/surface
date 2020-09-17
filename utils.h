@@ -1,6 +1,7 @@
 #include <fstream>
 #include <vector>
 #include <qstring.h>
+#include <qimage.h>
 
 #define DEBUG_PATH "/home/gerdie/SurfaceDebug.txt"
 
@@ -36,6 +37,7 @@ typedef enum FilterId
     OpGaussFilterNL,
     OpProbAddScramb,
     OpSegmentator,
+    OpLineFindTransVers,// Implementierung des Transversalitätskrietriums für Linienfinder
     Undefined
 }_FilterId;
 
@@ -52,6 +54,10 @@ typedef struct ProjectInfo
     std::vector<std::vector<FilterId>>* PipePlan;
 }_PrtojectInfo;
 
-
+class utils
+{
+public:
+    static std::vector<std::vector <int>>* Histogram(QImage* image);
+};
 
 #endif // UTILS_H
