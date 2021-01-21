@@ -8,6 +8,9 @@
 #include "filters/probaddscrambler.h"
 #include "filters/segmentator.h"
 #include "filters/linefindertransversal.h"
+#include "filters/shapefollower.h"
+#include "filters/turtleshapefollower.h"
+#include "filters/skeletonizer.h"
 
 Pipe::Pipe(std::vector<FilterId>* ids)
 {
@@ -139,6 +142,46 @@ void Pipe::_AddFilterToPipe(const FilterId id)
 
     }
     break;
+    case OpShapeFollower:
+    {
+        toAd = reinterpret_cast<Filter*>(new ShapeFollower());
+        toAd->setFilterId(OpShapeFollower);
+
+        if(toAd != nullptr)
+            stream << "| ShapeFollower \n";
+        else {
+            stream << "| - \n";
+        }
+
+    }
+    break;
+    /*case OpTurtleShapeFollower:
+    {
+        toAd = reinterpret_cast<Filter*>(new LineFinderTransversal());
+        toAd->setFilterId(OpTurtleShapeFollower);
+
+        if(toAd != nullptr)
+            stream << "| TurtleShapeFollower \n";
+        else {
+            stream << "| - \n";
+        }
+
+    }
+    break;*/
+
+    case OpSkeletonizer:
+    {
+        toAd = reinterpret_cast<Filter*>(new Skeletonizer());
+        toAd->setFilterId(OpSkeletonizer);
+
+        if(toAd != nullptr)
+            stream << "| Skeletonizer \n";
+        else {
+            stream << "| - \n";
+        }
+
+    }
+    break;
 
     default: break;
 
@@ -170,16 +213,15 @@ std::vector<QImage*>* Pipe::ProcessImage(QImage *imageToProcess)
 {
     _ResultImages.resize(_FilterQueue.size()-2);
 
-    //std::vector<Filter*>::iterator fqit;//fuq it!!!!
     _WorkingCopy = *imageToProcess;
     QImage* image = &_WorkingCopy;
 
-    //for(fqit = _FilterQueue.begin(); fqit < _FilterQueue.end(); fqit++)
+
     for(unsigned int i = 0; i < _FilterQueue.size(); i++)
     {
         Filter* filter = _FilterQueue[i];
         filter->ProcessImage(image);
-        image = filter->getImage();
+        image = filter->getImage();// Hier das CM::MAt in ein QImage übersetzen
 
         if((i!=0) && (i != _FilterQueue.size()-1))
             _ResultImages[i-1] = image;

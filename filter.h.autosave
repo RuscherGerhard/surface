@@ -1,0 +1,36 @@
+#include <QImage>
+#include "utils.h"
+
+#ifndef FILTER_H
+#define FILTER_H
+class Filter{
+public:
+
+    //virtual Filter* getVorgaenger()=0;
+    //virtual Filter* getNachfolger()=0;
+    virtual QImage* getImage()=0;
+    virtual FilterId getFilterId()=0;
+
+
+    //virtual void setVorgaenger(Filter* Vorgaenger)=0;
+    //virtual void setNachfolger(Filter* Nachfolger)=0;
+    virtual void setFilterId(const FilterId id)=0;
+
+
+    //virtual void SetImage(QImage* Image)=0;
+    virtual void ProcessImage(QImage* imageToProcess)=0;
+
+
+private:
+    //Filter* _Vorgaenger=nullptr;
+    //Filter* _Nachfolger=nullptr;
+    FilterId _FilterId; 
+
+
+    QImage* _Image=nullptr;///< Copy des Resultatbildes
+
+
+
+};
+
+#endif // FILTER_H

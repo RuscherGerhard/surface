@@ -29,7 +29,7 @@ void LogView::SetTextToBrowser(const QString &string)
 {
     if(ui->FilterOperatorBtn->isChecked())
     {
-        //*[Filter]
+        //[Filter]
         if(!_LogViewText.contains(FILTER))
         {
             ui->textBrowser->clear();

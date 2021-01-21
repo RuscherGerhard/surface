@@ -48,7 +48,7 @@ class Kante;
 class FilterItem: public QGraphicsTextItem
 {
 public:
-    FilterItem(const QString text, const FilterId id, const Qt::GlobalColor color, QWidget *parent);
+    FilterItem(const QString text, const FilterId id, const QColor color, QWidget *parent);
     ~FilterItem()override;
 
     QRectF boundingRect();
@@ -96,7 +96,7 @@ private:
     QRectF _inputSource;
     QRectF _outputSource;
     FilterId _id;
-    Qt::GlobalColor _color;
+    QColor _color;
 
     qreal angle;
     bool selected;
@@ -186,7 +186,7 @@ private:
 
     void _RemoveFilter(QGraphicsItem* item);
 
-    void _Crawler(const int currentVectorIdx, FilterItem* currentItem, std::vector<std::vector<FilterId>>* userData);
+    void _Crawler(const unsigned int currentVectorIdx, FilterItem* currentItem, std::vector<std::vector<FilterId>>* userData);
 
     /**
      * @brief _GenerateFilterItem: Diese Methode erstellt FilterItems auf wunsch mit Position und

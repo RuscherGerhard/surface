@@ -34,6 +34,8 @@ SOURCES += \
         filters/output.cpp \
         filters/probaddscrambler.cpp \
         filters/segmentator.cpp \
+        filters/shapefollower.cpp \
+        filters/turtleshapefollower.cpp \
         histogram.cpp \
         logger.cpp \
         logview.cpp \
@@ -56,6 +58,8 @@ HEADERS += \
         filters/output.h \
         filters/probaddscrambler.h \
         filters/segmentator.h \
+        filters/shapefollower.h \
+        filters/turtleshapefollower.h \
         histogram.h \
         logger.h \
         logview.h \

@@ -38,6 +38,9 @@ typedef enum FilterId
     OpProbAddScramb,
     OpSegmentator,
     OpLineFindTransVers,// Implementierung des Transversalitätskrietriums für Linienfinder
+    OpShapeFollower,
+    OpTurtleShapeFollower,
+    OpSkeletonizer,
     Undefined
 }_FilterId;
 

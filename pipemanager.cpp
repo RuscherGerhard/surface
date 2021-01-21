@@ -19,6 +19,9 @@ PipeManager::~PipeManager()
 /*Processing*/
 std::vector<std::vector<QImage*>*>* PipeManager::ProcessImage(QImage *imageToProcess)
 {
+    //Übersetzen von QImage nach cv::Mat
+
+
     //für den Fall, daß noch keine Pipes aufgesetzt wurden!
     if(_Pipes.size() <= 0)
         return nullptr;

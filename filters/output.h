@@ -3,6 +3,7 @@
 
 #include "filter.h"
 
+/*Performt die Transformation von CVMat nach QImage*/
 class output : public Filter
 {
 public:

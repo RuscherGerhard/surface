@@ -3,10 +3,10 @@
 
 #include "filter.h"
 
-
+/*Input performt die Transformation von QImage nach CVMat*/
 class Input : public Filter
 {
-public:
+ public:
     Input();
 
     virtual QImage* getImage();
@@ -15,6 +15,11 @@ public:
     virtual void setFilterId(const FilterId id);
 
     virtual void ProcessImage(QImage* imageToProcess);
+
+   private:
+    //virtual QImage* _ConvertToQImg(cv::Mat* mat);
+
+    cv::Mat* _ConvertToMat(QImage* img);
 
 };
 

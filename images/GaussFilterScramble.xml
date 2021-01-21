@@ -1,0 +1,11 @@
+<Surface_Project>
+    <Image_Path>/home/gerdie/Developement/test/Surface/images/pic2.png</Image_Path>
+    <Pipe_Plan>
+        <A_Pipe>
+            <FilterId>0</FilterId>
+            <FilterId>6</FilterId>
+            <FilterId>4</FilterId>
+            <FilterId>1</FilterId>
+        </A_Pipe>
+    </Pipe_Plan>
+</Surface_Project>

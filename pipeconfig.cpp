@@ -13,7 +13,7 @@
 #define EDGE_DET " "         << "-EDGE DETECTION-"
 #define SEGMENT  " "         << "-SEGMENTATION-" << "Segmentator"
 #define LINEDETECT " "    << "-LINEDETECTION-" << "TransversLineFind"
-
+#define SHAPE   " " << " -SHAPE FOLLOWER-" << "ShapeFollower" << "TurtleShapeFollower" << "Skeletonizer"
 
 PipeConfig::PipeConfig(MainWindow* mainWin, QWidget *parent) :
     _StartPointSet(false),
@@ -61,7 +61,7 @@ PipeConfig::~PipeConfig()
 
 void PipeConfig::_MakeItemList()
 {
-    _FilterList << FILTERS<< SCRAMB<< SMOOTH_FILTERS <<ENH_EDGE << EDGE_DET << SEGMENT << LINEDETECT;
+    _FilterList << FILTERS<< SCRAMB<< SMOOTH_FILTERS <<ENH_EDGE << EDGE_DET << SEGMENT << LINEDETECT << SHAPE;
 
 
     ui->FilterList->addItems(_FilterList);
@@ -75,9 +75,14 @@ FilterItem* PipeConfig::_GenerateFilterItem(FilterId id, const int posX, const i
 {
     Qt::GlobalColor ScramblerFarbe = Qt::gray;
     Qt::GlobalColor GlaettungsFilterFarbe = Qt::red;
-    Qt::GlobalColor KantenFinderFarbe = Qt::blue;
+    //(Qt::GlobalColor KantenFinderFarbe = Qt::blue;
     Qt::GlobalColor SegmentierFarbe = Qt::green;
     Qt::GlobalColor LineDetectFarbe = Qt::yellow;
+    QColor ShapeFollowerFarbe;
+    ShapeFollowerFarbe.setRed(2);
+    ShapeFollowerFarbe.setGreen(181);
+    ShapeFollowerFarbe.setBlue(160);
+    ShapeFollowerFarbe.setAlpha(255);
 
 
     FilterItem* item = nullptr;
@@ -90,6 +95,10 @@ FilterItem* PipeConfig::_GenerateFilterItem(FilterId id, const int posX, const i
     case OpProbAddScramb: {item = new FilterItem("ProbabilisticAdditiveScrambler", OpProbAddScramb ,ScramblerFarbe,this);}break;
     case OpSegmentator: {item = new FilterItem("Segmentator", OpSegmentator, SegmentierFarbe, this);}break;
     case OpLineFindTransVers: {item = new FilterItem("TransversLineFind", OpLineFindTransVers, LineDetectFarbe, this);}break;
+        case OpShapeFollower: {item = new FilterItem("ShapeFollower", OpShapeFollower, ShapeFollowerFarbe, this);}break;
+    //case OpTurtleShapeFollower: {item = new FilterItem("TurtleShapeFollower", OpTurtleShapeFollower, ShapeFollowerFarbe, this);}break;
+    case OpSkeletonizer: {item = new FilterItem("Skeletonizer", OpSkeletonizer, ShapeFollowerFarbe, this);}break;
+
     default:break;
 
     }
@@ -155,13 +164,20 @@ void PipeConfig::OnBtnAddFilter()
    {
        _GenerateFilterItem(OpLineFindTransVers);
    }
+   else if(!QString::compare(selectedName, QString("ShapeFollower")))
+   {
+       _GenerateFilterItem(OpShapeFollower);
+   }
+   /*else if(!QString::compare(selectedName, QString("TurtleShapeFollower")))
+   {
+       _GenerateFilterItem(OpTurtleShapeFollower);
+   }*/
 
+   else if(!QString::compare(selectedName, QString("Skeletonizer")))
+   {
+       _GenerateFilterItem(OpSkeletonizer);
+   }
 
-
-   //In die Config Scene inserten
-   //_ConfigScene.addItem(item);
-   //In meinen Vector inserten!
-   //_FilterItemVector.push_back(item);
 }
 
 
@@ -205,10 +221,10 @@ void PipeConfig::OnBtnRemoveItem()
 }
 
 
-void PipeConfig::_Crawler(const int currentVectorIdx, FilterItem* currentItem, std::vector<std::vector<FilterId>>* userData)
+void PipeConfig::_Crawler(const unsigned int currentVectorIdx, FilterItem* currentItem, std::vector<std::vector<FilterId>>* userData)
 {
-    bool ifInput = false;
-    int VectorIdx = currentVectorIdx;
+    //bool ifInput = false;
+    unsigned int VectorIdx = currentVectorIdx;
     /*else*/if(currentItem->GetFilterId() == OpInput)
     {
         VectorIdx++;
@@ -216,7 +232,7 @@ void PipeConfig::_Crawler(const int currentVectorIdx, FilterItem* currentItem, s
         std::vector<FilterId> vec(0);
 
         userData->push_back(vec);
-        ifInput = true;
+        //ifInput = true;
 
     }
 
@@ -343,14 +359,14 @@ void PipeConfig::DisplayPipeConfig(std::vector<std::vector<FilterId> > *PipePlan
 {
     _ClearAllItems();
 
-    int amountOfPipe = static_cast<int>(PipePlan->size());
+    unsigned int amountOfPipe = static_cast<unsigned int>(PipePlan->size());
 
     int graphicsviewHeight = static_cast<int>(ui->graphicsView->height());
 
     int graphicsviewWidth = static_cast<int>(ui->graphicsView->width());
 
     size_t AmountofFilterItems = 0;
-    for(int n = 0; n < amountOfPipe; n++)
+    for(unsigned int n = 0; n < amountOfPipe; n++)
     {
         size_t pipeSize = PipePlan->at(n).size();
         if(AmountofFilterItems < pipeSize)
@@ -366,8 +382,8 @@ void PipeConfig::DisplayPipeConfig(std::vector<std::vector<FilterId> > *PipePlan
 
 
     //Startposition ausrechnen
-    int initPosY = (int)graphicsviewHeight / 2;
-    int initPosX = -(int)graphicsviewWidth / 2;
+    int initPosY = static_cast<int>(graphicsviewHeight / 2);
+    int initPosX = -static_cast<int>(graphicsviewWidth / 2);
 
     int posX = 0;
     int posY = 0;
@@ -428,7 +444,7 @@ void PipeConfig::_ClearAllItems()
 /////////////////////
 //Klasse FilterItem
 ////////////////////////
-FilterItem::FilterItem(const QString text, const FilterId id, const Qt::GlobalColor color, QWidget *parent):
+FilterItem::FilterItem(const QString text, const FilterId id, const QColor color, QWidget *parent):
     _id(id),
     _Nachfolger(nullptr),
     _Vorgaenger(nullptr),
@@ -459,15 +475,15 @@ FilterItem::FilterItem(const QString text, const FilterId id, const Qt::GlobalCo
     _outputSource = QRectF(outputStart, QSize(inOutWidth,inOutHeight));
 
 
-    qreal inwidth = _inputSource.width();
+    //qreal inwidth = _inputSource.width();
     qreal inheight = _inputSource.height();
     qreal outwidth = _outputSource.width();
     qreal outheight = _outputSource.height();
 
     qreal inPosX = _inputSource.x();
     qreal inPosY = _inputSource.y();
-    qreal outPosX = _outputSource.x();
-    qreal outPosY = _outputSource.y();
+    //qreal outPosX = _outputSource.x();
+    //qreal outPosY = _outputSource.y();
 
 
     _inputCoord.setX(inPosX);
@@ -511,7 +527,8 @@ QPainterPath FilterItem::shape()
 
 void FilterItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    painter->setBrush(_color);
+    QBrush brush(_color);
+    painter->setBrush(brush);
 
     if(selected)
     {
