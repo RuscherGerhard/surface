@@ -51,7 +51,7 @@ void Pipe::_AddFilterToPipe(const FilterId id)
         }
     }
     break;
-    case OpBoxFilter:
+    /*case OpBoxFilter:
     {
         toAd = reinterpret_cast<Filter*>(new BoxFilter());
         if(toAd != nullptr)
@@ -101,20 +101,6 @@ void Pipe::_AddFilterToPipe(const FilterId id)
     }
     break;
 
-
-    case OpOutput:
-    {
-        toAd = reinterpret_cast<Filter*>(new output());
-
-        if(toAd != nullptr)
-            stream << "| Output \n";
-        else {
-            stream << "| - \n";
-        }
-
-    }
-    break;
-
     case OpSegmentator:
     {
         toAd = reinterpret_cast<Filter*>(new segmentator());
@@ -155,6 +141,21 @@ void Pipe::_AddFilterToPipe(const FilterId id)
 
     }
     break;
+
+    case OpSkeletonizer:
+    {
+        toAd = reinterpret_cast<Filter*>(new Skeletonizer());
+        toAd->setFilterId(OpSkeletonizer);
+
+        if(toAd != nullptr)
+            stream << "| Skeletonizer \n";
+        else {
+            stream << "| - \n";
+        }
+
+    }
+    break;*/
+
     /*case OpTurtleShapeFollower:
     {
         toAd = reinterpret_cast<Filter*>(new LineFinderTransversal());
@@ -169,19 +170,20 @@ void Pipe::_AddFilterToPipe(const FilterId id)
     }
     break;*/
 
-    case OpSkeletonizer:
+
+    case OpOutput:
     {
-        toAd = reinterpret_cast<Filter*>(new Skeletonizer());
-        toAd->setFilterId(OpSkeletonizer);
+        toAd = reinterpret_cast<Filter*>(new output());
 
         if(toAd != nullptr)
-            stream << "| Skeletonizer \n";
+            stream << "| Output \n";
         else {
             stream << "| - \n";
         }
 
     }
     break;
+
 
     default: break;
 
@@ -215,17 +217,39 @@ std::vector<QImage*>* Pipe::ProcessImage(QImage *imageToProcess)
 
     _WorkingCopy = *imageToProcess;
     QImage* image = &_WorkingCopy;
+    cv::Mat* imageMat = nullptr;
 
-
+    Filter* filter = _FilterQueue[0];
+    filter->ProcessImage(image);
+    imageMat = filter->getImageMat(); //[filter, image]()->QImage*{  filter->ProcessImage(image); return filter->getImage();}
     for(unsigned int i = 0; i < _FilterQueue.size(); i++)
     {
-        Filter* filter = _FilterQueue[i];
-        filter->ProcessImage(image);
-        image = filter->getImage();// Hier das CM::MAt in ein QImage übersetzen
+        filter = _FilterQueue[i];
+        filter->ProcessImage(imageMat);
+        imageMat = filter->getImageMat();
 
         if((i!=0) && (i != _FilterQueue.size()-1))
-            _ResultImages[i-1] = image;
+            _ResultImages[i-1] = _ConvertMatToQImage(imageMat);// Hier das CM::MAt in ein QImage übersetzen
     }
 
     return &_ResultImages;
+}
+
+
+QImage* Pipe::_ConvertMatToQImage(cv::Mat *image)
+{
+    QImage* returnImage =nullptr;
+    switch(image->Mat::type())
+    {
+    case CV_8UC4:
+        {
+            returnImage = new QImage(image->data, image->cols, image->rows, static_cast<int>(image->step), QImage::Format_RGB32);
+        }
+        break;
+
+    default:
+        break;
+    }
+
+    return returnImage;
 }

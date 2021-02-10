@@ -11,10 +11,13 @@ public:
 
     virtual QImage* getImage();
     virtual FilterId getFilterId();
+    virtual cv::Mat* getImageMat();
 
     virtual void setFilterId(const FilterId id);
 
+    //Mit Vorsicht zu genießen, da der Process nur _Image oder _Img setzt. Segfault-Gefahr
     virtual void ProcessImage(QImage* imageToProcess);
+    virtual void ProcessImage(cv::Mat* imageToProcess);
 
 };
 

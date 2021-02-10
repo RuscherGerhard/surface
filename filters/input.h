@@ -11,9 +11,11 @@ class Input : public Filter
 
     virtual QImage* getImage();
     virtual FilterId getFilterId();
+    virtual cv::Mat* getImageMat();
 
     virtual void setFilterId(const FilterId id);
 
+    virtual void ProcessImage(cv::Mat* imageToProcess);
     virtual void ProcessImage(QImage* imageToProcess);
 
    private:

@@ -18,6 +18,7 @@ public:
 
     virtual void setFilterId(const FilterId id)=0;
 
+    virtual void ProcessImage(cv::Mat* imageToProcess)=0;
     virtual void ProcessImage(QImage* imageToProcess)=0;
 
 

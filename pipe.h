@@ -4,6 +4,9 @@
 #include "utils.h"
 #include <QImage>
 
+//#include "filters/filter.h"
+#include <opencv4/opencv2/imgproc.hpp>
+
 class Filter;
 
 class Pipe
@@ -30,6 +33,8 @@ private:
     void _DeleteFilters();
 
     void _AddFilterToPipe(const FilterId id);
+
+    QImage* _ConvertMatToQImage(cv::Mat* image);
 
 };
 

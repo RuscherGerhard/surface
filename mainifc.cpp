@@ -229,7 +229,8 @@ bool MainIfc::_ReadFromHardDrive(ProjectInfo &info, const QString &path)
 QImage* MainIfc::LoadImg(const QString &path)
 {
     QImage* img = new QImage(path);
-    if(img->isNull())
+    //ACHTUNG: wenn mehrere IMG-Formate nach cvMat konvertiert werden sollen in "Input" und "Output" als RGB32, hier eintragen!
+    if(img->isNull() || img->format() != QImage::Format_RGB32)
     {
         delete (img);
         img = nullptr;

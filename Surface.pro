@@ -27,6 +27,7 @@ CONFIG += c++11
 
 SOURCES += \
         filters/boxfilter.cpp \
+        filters/filter.cpp \
         filters/gaussfilter.cpp \
         filters/gaussnl.cpp \
         filters/input.cpp \
@@ -35,6 +36,7 @@ SOURCES += \
         filters/probaddscrambler.cpp \
         filters/segmentator.cpp \
         filters/shapefollower.cpp \
+        filters/skeletonizer.cpp \
         filters/turtleshapefollower.cpp \
         histogram.cpp \
         logger.cpp \
@@ -59,6 +61,7 @@ HEADERS += \
         filters/probaddscrambler.h \
         filters/segmentator.h \
         filters/shapefollower.h \
+        filters/skeletonizer.h \
         filters/turtleshapefollower.h \
         histogram.h \
         logger.h \
@@ -79,7 +82,16 @@ LIBS += -ltinyxml2
 
 LIBS += /usr/lib/x86_64-linux-gnu/libtinyxml2.so
 
+#OpenCV Libs
+LIBS += /usr/local/lib/libopencv_core.so
+LIBS += /usr/local/lib/libopencv_improc.so
+LIBS += /usr/local/lib/libopencv_codecs.so
+
 INCLUDEPATH += /usr/include/tinyxml2/tinysml2.h
+
+#opencv inlcude
+INCLUDEPATH += /usr/local/include/opencv4
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

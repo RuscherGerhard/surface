@@ -52,6 +52,11 @@ public:
     Error_Codes Load(const QString &path, QImage** img, ProjectInfo &info);
 
 
+    /**
+     * @brief LoadImg: läd eine JPEG von der durch den Pfad gegebenen Stelle von der Festplatte.
+     * @param path: Der Pfad, von wo die JPEG geladen werden soll!
+     * @return QImage*: ein Zeiger auf das Geladene Bild
+     */
     QImage* LoadImg(const QString &path);
 
     QString GetLogFileText();
