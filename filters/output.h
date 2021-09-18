@@ -19,6 +19,10 @@ public:
     virtual void ProcessImage(QImage* imageToProcess);
     virtual void ProcessImage(cv::Mat* imageToProcess);
 
+    virtual void ProcessImagePar(cv::Mat* imageToProcess, const int xS, const int xE, const int yS, const int yE);
+
+    virtual bool getParallel(){return _Parallel;}
+
 };
 
 #endif // OUTPUT_H

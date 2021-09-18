@@ -20,6 +20,8 @@ public:
 
     virtual void ProcessImage(QImage* imageToProcess);
 
+    virtual bool getParallel(){return _Parallel;}
+
 private:
     std::vector<QPoint*> _neighbors;
 

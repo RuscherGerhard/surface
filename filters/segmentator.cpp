@@ -21,6 +21,8 @@ segmentator::segmentator()
 {
     peaks = (unsigned int*)malloc(sizeof(unsigned int) * 128);
     memset(peaks,0,128*sizeof(unsigned int));
+
+    _Parallel = false;
 }
 
 segmentator::~segmentator()

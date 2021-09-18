@@ -14,38 +14,15 @@ class QGraphicsPixmapItem;
 class MainIfc;
 class QGridLayout;
 class QTextBrowser;
+class MySpecialPixMapItem;
+class resultsView;
+
 
 namespace Ui {
 class MainWindow;
 }
 
 
-class MySpecialPixMapItem : public QGraphicsPixmapItem
-{
-public:
-    MySpecialPixMapItem(QPixmap &map, const unsigned int Id,MainWindow* winMain);
-
-
-    virtual QRectF boundingRect();
-
-    void mousePressEvent(QGraphicsSceneMouseEvent* event)override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-
-    /**
-     * @brief GetId: returnt die Id.
-     * @return unsigend int ID, der wert des Members _MyId.
-     */
-    unsigned int GetId(){return _MyId;}
-
-    QPixmap* getPixmap(){return &_map;}
-
-private:
-    MainWindow* _MainWin;
-    unsigned int _MyId;
-
-    QPixmap _map;
-
-};
 
 
 
@@ -97,10 +74,11 @@ private:
     QString MyImageAddress;
     QGraphicsView* MyView;
     QGraphicsScene* MyScene;
-    QGraphicsView* MyResultsView;
-    QGraphicsScene* MyResultsScene;
+    //QGraphicsView* MyResultsView;//Wird erstetzt durch die Externe Klasse MyResultsView
+    //QGraphicsScene* MyResultsScene;//Gehört zur MyResultsView
+    resultsView* MyResultsView;
 
-    MySpecialPixMapItem* MyItem;///< Ist mein Bild in der hauptanzeige
+    MySpecialPixMapItem* MyItem;///< Ist das Bild in der hauptanzeige
 
     QImage* MyImage;///< Ist mein Originalbild (als QImage)
 
@@ -130,10 +108,15 @@ private:
      */
     void _SetupGui();
 
-
+    /**
+     * @brief _AddResultsToScene greift auf die ResultScene zu. gehört in die Klasse!!!!
+     */
     void _AddResultsToScene();
-
+    /**
+     * @brief _CleanupResultPixMaps Greift auf die ResultScene zu, gehört in die Klasse!!
+     */
     void _CleanupResultPixMaps();
+
 
     void _PrepareForNewImage(QImage* newImage, const QString &fileName);
 

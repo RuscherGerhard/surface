@@ -11,6 +11,7 @@
 #include "filters/shapefollower.h"
 #include "filters/turtleshapefollower.h"
 #include "filters/skeletonizer.h"
+#include <thread>
 
 Pipe::Pipe(std::vector<FilterId>* ids)
 {
@@ -21,6 +22,8 @@ Pipe::Pipe(std::vector<FilterId>* ids)
    {
        _AddFilterToPipe(ids->at(i));
    }
+
+   _HowManyTasks = 4;
 }
 
 Pipe::~Pipe()
@@ -28,7 +31,10 @@ Pipe::~Pipe()
     _DeleteFilters();
 }
 
-
+/**
+ * @brief Pipe::_AddFilterToPipe in Abhängigkeit der Eingabe erzeugt die Methode einen neuen Filter und fügt ihn der Pipe hinzu!
+ * @param id: die ID des gewünschten Filters
+ */
 void Pipe::_AddFilterToPipe(const FilterId id)
 {
 
@@ -51,7 +57,21 @@ void Pipe::_AddFilterToPipe(const FilterId id)
         }
     }
     break;
-    /*case OpBoxFilter:
+
+    case OpProbAddScramb :
+    {
+        toAd = reinterpret_cast<Filter*>(new probAddScrambler());
+
+        if(toAd != nullptr)
+            stream << "| Prob. Add. Scrambler \n";
+        else {
+            stream << "| - \n";
+        }
+
+    }
+    break;
+
+    case OpBoxFilter:
     {
         toAd = reinterpret_cast<Filter*>(new BoxFilter());
         if(toAd != nullptr)
@@ -63,7 +83,7 @@ void Pipe::_AddFilterToPipe(const FilterId id)
     }    
     break;
 
-    case OpGaussFilter:
+    /*case OpGaussFilter:
     {
         toAd = reinterpret_cast<Filter*>(new GaussFilter());
         if(toAd != nullptr)
@@ -86,19 +106,6 @@ void Pipe::_AddFilterToPipe(const FilterId id)
 
     }
 
-    break;
-
-    case OpProbAddScramb :
-    {
-        toAd = reinterpret_cast<Filter*>(new probAddScrambler());
-
-        if(toAd != nullptr)
-            stream << "| Prob. Add. Scrambler \n";
-        else {
-            stream << "| - \n";
-        }
-
-    }
     break;
 
     case OpSegmentator:
@@ -213,7 +220,9 @@ void Pipe::_DeleteFilters()
 //Imageprocessing
 std::vector<QImage*>* Pipe::ProcessImage(QImage *imageToProcess)
 {
-    _ResultImages.resize(_FilterQueue.size()-2);
+
+
+    _ResultImages.resize(_FilterQueue.size()-2);//der Input und der Output wird nicht gebraucht. Nur die Ergebnisse der Filter in der Mitte, also zwei Filter weniger.
 
     _WorkingCopy = *imageToProcess;
     QImage* image = &_WorkingCopy;
@@ -222,14 +231,82 @@ std::vector<QImage*>* Pipe::ProcessImage(QImage *imageToProcess)
     Filter* filter = _FilterQueue[0];
     filter->ProcessImage(image);
     imageMat = filter->getImageMat(); //[filter, image]()->QImage*{  filter->ProcessImage(image); return filter->getImage();}
-    for(unsigned int i = 0; i < _FilterQueue.size(); i++)
+    for(unsigned int i = 1; i < _FilterQueue.size()-1; i++)
     {
         filter = _FilterQueue[i];
-        filter->ProcessImage(imageMat);
+        if(filter->getParallel())
+        {
+            if(_HowManyTasks == 2)
+            {
+                filter->MakeResultImg(imageMat);
+                //hier wird die ganze geschichte parallel ausgeführt
+
+                int xs1 = 0;
+                int ys1 = 0;
+                int xe1 = imageMat->cols/2;
+                int ye1 = imageMat->rows;
+
+                int xs2 = imageMat->cols/2 +1;
+                int ys2 = 0;
+                int xe2 = imageMat->rows;
+                int ye2 = imageMat->cols;
+
+                std::thread t1(&Filter::ProcessImagePar, filter, imageMat, xs1, ys1, xe1, ye1);
+                std::thread t2(&Filter::ProcessImagePar, filter,imageMat, xs2, ys2, xe2, ye2);
+
+                t1.join();
+                t2.join();
+
+            }
+            else if(_HowManyTasks == 4)
+            {
+                filter->MakeResultImg(imageMat);
+
+                int xs1 = 0;
+                int ys1 = 0;
+                int xe1 = imageMat->cols/2;
+                int ye1 = imageMat->rows/2;
+
+                int xs2 = imageMat->cols/2 +1;
+                int ys2 = 0;
+                int xe2 = imageMat->cols;
+                int ye2 = imageMat->rows/2;
+
+                int xs3 = 0;
+                int ys3 = imageMat->rows/2 +1;
+                int xe3 = imageMat->cols/2;
+                int ye3 = imageMat->rows;
+
+                int xs4 = imageMat->cols/2 +1 ;
+                int ys4 = imageMat->rows/2 +1;
+                int xe4 = imageMat->cols;
+                int ye4 = imageMat->rows;
+
+
+                std::thread t1(&Filter::ProcessImagePar, filter, imageMat, xs1, ys1, xe1, ye1);
+                std::thread t2(&Filter::ProcessImagePar, filter,imageMat, xs2, ys2, xe2, ye2);
+                std::thread t3(&Filter::ProcessImagePar, filter, imageMat, xs3, ys3, xe3, ye3);
+                std::thread t4(&Filter::ProcessImagePar, filter,imageMat, xs4, ys4, xe4, ye4);
+
+                t1.join();
+                t2.join();
+                t4.join();
+                t3.join();
+
+            }
+        }
+        else
+        {
+            //hier wird die geschichte sequenziell ausgeführt!
+            filter->ProcessImage(imageMat);
+        }
+
         imageMat = filter->getImageMat();
 
-        if((i!=0) && (i != _FilterQueue.size()-1))
-            _ResultImages[i-1] = _ConvertMatToQImage(imageMat);// Hier das CM::MAt in ein QImage übersetzen
+
+
+        _ResultImages[i-1] = _ConvertMatToQImage(imageMat);// Hier das CM::MAt in ein QImage übersetzen
+
     }
 
     return &_ResultImages;

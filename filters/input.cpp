@@ -6,6 +6,8 @@ Input::Input()
 {
     _Image = nullptr;
     _FilterId = (FilterId)0;
+
+    _Parallel = false;
 }
 
 QImage* Input::getImage()
@@ -36,6 +38,11 @@ void Input::ProcessImage(QImage* imageToProcess)
 }
 
 void Input::ProcessImage(cv::Mat *imageToProcess)
+{
+    _Img = imageToProcess;
+}
+
+void Input::ProcessImagePar(cv::Mat *imageToProcess, const int xS, const int xE, const int yS, const int yE)
 {
     _Img = imageToProcess;
 }

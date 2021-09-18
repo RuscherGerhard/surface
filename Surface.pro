@@ -44,9 +44,11 @@ SOURCES += \
         main.cpp \
         mainifc.cpp \
         mainwindow.cpp \
+        myspecialpixmapitem.cpp \
         pipe.cpp \
         pipeconfig.cpp \
         pipemanager.cpp \
+        resultsview.cpp \
         utils.cpp
 
 HEADERS += \
@@ -68,9 +70,11 @@ HEADERS += \
         logview.h \
         mainifc.h \
         mainwindow.h \
+        myspecialpixmapitem.h \
         pipe.h \
         pipeconfig.h \
         pipemanager.h \
+        resultsview.h \
         utils.h
 
 FORMS += \
@@ -84,8 +88,8 @@ LIBS += /usr/lib/x86_64-linux-gnu/libtinyxml2.so
 
 #OpenCV Libs
 LIBS += /usr/local/lib/libopencv_core.so
-LIBS += /usr/local/lib/libopencv_improc.so
-LIBS += /usr/local/lib/libopencv_codecs.so
+LIBS += /usr/local/lib/libopencv_imgproc.so
+LIBS += /usr/local/lib/libopencv_imgcodecs.so
 
 INCLUDEPATH += /usr/include/tinyxml2/tinysml2.h
 

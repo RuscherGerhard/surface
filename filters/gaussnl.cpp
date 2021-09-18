@@ -5,7 +5,7 @@
 GaussNL::GaussNL():
     _FilterRad(1)
 {
-
+    _Parallel = false;
 }
 
 GaussNL::~GaussNL()

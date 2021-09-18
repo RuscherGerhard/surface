@@ -25,6 +25,7 @@ private:
     QImage _WorkingCopy;
     std::vector<QImage*> _ResultImages;
 
+    int _HowManyTasks; ///< Gibt an in wie vielen Tasks(Threads) die Filter ablaufen sollen im parallelen Betrieb
 
     /**
      * @brief DeleteFilters:

@@ -6,6 +6,8 @@ output::output()
 {
     _FilterId = OpOutput;
     _Image = nullptr;
+
+    _Parallel = false;
 }
 
 
@@ -35,6 +37,11 @@ void output::ProcessImage(QImage *imageToProcess)
 }
 
 void output::ProcessImage(cv::Mat *imageToProcess)
+{
+    _Img = imageToProcess;
+}
+
+void output::ProcessImagePar(cv::Mat* imageToProcess, const int xS, const int xE, const int yS, const int yE)
 {
     _Img = imageToProcess;
 }

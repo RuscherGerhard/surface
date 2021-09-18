@@ -27,7 +27,7 @@ typedef union myColor
 
 LineFinderTransversal::LineFinderTransversal()
 {
-
+    _Parallel = false;
 }
 
 LineFinderTransversal::~LineFinderTransversal()

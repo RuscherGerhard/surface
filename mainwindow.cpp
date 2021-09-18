@@ -8,6 +8,8 @@
 #include <QFileDialog>
 #include <QTextBrowser>
 #include <utils.h>
+#include <myspecialpixmapitem.h>
+#include <resultsview.h>
 
 //#include <QGraphicsSceneMouseEvent>
 //#include <QGraphicsItem>
@@ -18,8 +20,8 @@
 MainWindow::MainWindow( QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    MyImage(nullptr),
     MyItem(nullptr),
+    MyImage(nullptr),
     _HistoOpen(false)
 {
 
@@ -52,10 +54,12 @@ void MainWindow::_SetupGui()
 
 
      //Resultatauswahlfeld
-     MyResultsView = ui->ResultsView;
+     //ui->tab->layout()->removeWidget()
+     MyResultsView = new resultsView(ui->tabWidget, this);//ui->ResultsView;    
+     ui->tab->layout()->addWidget(MyResultsView);
 
-     MyResultsScene = new QGraphicsScene();
-     MyResultsView->setScene(MyResultsScene);
+     /*ÜMyResultsScene = new QGraphicsScene();
+     MyResultsView->setScene(MyResultsScene);*/
 
 
    ui->ErrorLabel->setText(tr("No Image loaded."));
@@ -125,10 +129,10 @@ void MainWindow::_CreateMenus()
 
 
 
-
+//result widget
 void MainWindow::_CleanupResultPixMaps()
 {
-    size_t len = MyResultsScene->items().size();
+    /*size_t len = MyResultsScene->items().size();
     for(size_t j=0; j < len; j++)
     {
 
@@ -141,10 +145,13 @@ void MainWindow::_CleanupResultPixMaps()
         delete (_ResultPixMaps[i]);
 
         _ResultPixMaps[i] = nullptr;
-    }
+    }*/
+
+    MyResultsView->CleanupResultPixMaps();
 
 }
 
+//result widget
 void MainWindow::_AddResultsToScene()
 {
     //Wenn wir noch kein Bild zum bearbeiten geladen haben, dann hier Abbrechen!
@@ -154,29 +161,33 @@ void MainWindow::_AddResultsToScene()
     //Aufräumen
     _CleanupResultPixMaps();
 
-    //Mögliche results in die Scene inserten!
+    //Results von der Pipe holen
     std::vector<std::vector<QImage*>*>* results = _MainIfc->ProcessImage(MyImage);
 
-
+    MyResultsView->AddResultsToScene(MyImage, results);
     //Falls wir einen Vector zurückbekommen haben, also falls tatsächlich eine Pipe aufgebaut wurde!!!!
-    if(results != nullptr)
+    /*if(results != nullptr)//Wenn NULL dann keine Pipe, klar!
     {
+        unsigned int resSize = results->at(0)->size();
+
         //Die Anzahl der Pipes definiert auch die Anzahl der Views bei der Anzeige.
-        _ResultPixMaps.resize(results->at(0)->size()+1);
+        _ResultPixMaps.resize(resSize+1);
 
         int id = 1;
 
-        for(size_t j=0; j < results->at(0)->size(); j++)
+        for(size_t j=0; j < resSize; j++)
         {
             //Das Item basteln
             QPixmap map = QPixmap::fromImage(*results->at(0)->at(j));
             MySpecialPixMapItem* item = new MySpecialPixMapItem(map, id +j,this);
 
-            //In die ResultsMap adden nicht skalliert!!!!
+            //In die ResultsMap adden, unskalliert!!!!
             _ResultPixMaps[j] = item;
 
-            //Scaled Items für die results view basteln (skallirte items)
-            QPixmap scaledMap =map.scaled(MyResultsView->width(), MyResultsView->height()/5, Qt::KeepAspectRatio);
+            //Scaled Items für die results view basteln (skallierte items)
+            int resVHeight = MyResultsView->height();
+            int reVWidth = MyResultsView->width();
+            QPixmap scaledMap = map.scaled(MyResultsView->width(), MyResultsView->height()/5, Qt::KeepAspectRatio);
             MySpecialPixMapItem* scaledItem = new MySpecialPixMapItem(scaledMap, id +j, this);
 
             scaledItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -205,7 +216,7 @@ void MainWindow::_AddResultsToScene()
     scaledItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
     //In die ResultsMap adden
-    MyResultsScene->addItem(scaledItem);
+    MyResultsScene->addItem(scaledItem);*/
 
 }
 
@@ -268,10 +279,10 @@ void MainWindow::_SwitchImgInMainView(const unsigned int Id)
 
     bool idFound = false;
 
-    MySpecialPixMapItem* itemToShow;
+    MySpecialPixMapItem* itemToShow =nullptr;
 
     //Neues Item erzeugen!
-    for(size_t i = 0; i < _ResultPixMaps.size(); i++)
+   /* for(size_t i = 0; i < _ResultPixMaps.size(); i++)
     {
         unsigned int lid = _ResultPixMaps[i]->GetId();
         if(lid == Id)
@@ -281,14 +292,19 @@ void MainWindow::_SwitchImgInMainView(const unsigned int Id)
 
             ui->ErrorLabel->setText("Found corresponding Image");
         }
-    }
+    }*/
 
-    if(idFound)
+    itemToShow = MyResultsView->SearchInResultsPixmaps(Id);
+
+    if(itemToShow != nullptr)
     {
         //Das gefundene Bild anzeigen
         DisplayImage(itemToShow);
+        ui->ErrorLabel->setText("Found corresponding Image.");
 
-
+    }
+    else {
+        ui->ErrorLabel->setText("No corresponding Image found!!!");
     }
 }
 
@@ -386,7 +402,7 @@ void MainWindow::_OnMenuBtnLoadImg()
     }
 
     QImage* image = _MainIfc->LoadImg(filenName);
-    if(image->isNull())
+    if(image == nullptr)
     {
         ui->ErrorLabel->setText("ERROR: Could not load image!");
     }
@@ -490,54 +506,4 @@ void MainWindow::_OnHistoClosed()
     _HistoOpen = false;
 }
 
-
-////////////////////////////////////////////////////////////
-//  Klasse MySpecialPixMapItem
-///////////////////////////////////////////////////////////
-
-//C-TOR
-MySpecialPixMapItem::MySpecialPixMapItem(QPixmap &map, const unsigned int Id, MainWindow* winMain):
-    QGraphicsPixmapItem(map),
-    _map(map),
-    _MyId(Id),
-    _MainWin(winMain)
-{
-}
-
-//MousePressEvent
-void MySpecialPixMapItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
-{
-    //Hier die AnzeigenMethode für den HauptView anwerfen mit der entsprechenden Id!!!!
-    _MainWin->_SwitchImgInMainView(_MyId);
-}
-
-void MySpecialPixMapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
-    if(isSelected())
-    {
-        painter->setPen(Qt::green);
-    }
-    else
-    {
-        painter->setPen(Qt::blue);
-    }
-
-    painter->drawRect(boundingRect());
-
-    painter->setBrush(Qt::black);
-
-    QGraphicsPixmapItem::paint(painter, option, widget);
-}
-
-
-
-//D-TOR
-//MySpecialPixMapItem::~MySpecialPixMapItem(){}
-
-
-//Überschriebene Methoden
-QRectF MySpecialPixMapItem::boundingRect()
-{
-    return QGraphicsPixmapItem::boundingRect();
-}
 

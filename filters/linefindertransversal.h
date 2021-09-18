@@ -17,6 +17,8 @@ public:
 
     virtual void ProcessImage(QImage* imageToProcess);
 
+    virtual bool getParallel(){return _Parallel;}
+
 private:
 
     QImage _grayImg;

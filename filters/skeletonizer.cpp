@@ -6,6 +6,7 @@
 
 Skeletonizer::Skeletonizer()
 {
+    _Parallel = false;
     for(unsigned int i = 0; i < 8; i++)
     {
         QPoint* p = new QPoint();

@@ -16,6 +16,8 @@ public:
 
     virtual void ProcessImage(QImage* imageToProcess);
 
+    virtual bool getParallel(){return _Parallel;}
+
 private:
 
     QPoint _p0;
