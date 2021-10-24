@@ -87,12 +87,12 @@ FilterItem* PipeConfig::_GenerateFilterItem(FilterId id, const int posX, const i
 
     FilterItem* item = nullptr;
     switch (id) {
-    case OpInput:{item = new FilterItem("Input", OpInput ,Qt::white,this);}break;
-    case OpOutput:{item = new FilterItem("Output", OpOutput ,Qt::white,this);}break;
-    case OpBoxFilter:{item = new FilterItem("BoxFilter", OpBoxFilter ,GlaettungsFilterFarbe,this);}break;
+    case OpInput:{item = new FilterItem(IN, OpInput ,Qt::white,this);}break;
+    case OpOutput:{item = new FilterItem(OUT, OpOutput ,Qt::white,this);}break;
+    case OpBoxFilter:{item = new FilterItem(BOX, OpBoxFilter ,GlaettungsFilterFarbe,this);}break;
     case OpGaussFilter: {item = new FilterItem("GaussFilter", OpGaussFilter ,GlaettungsFilterFarbe,this);}break;
     case OpGaussFilterNL: {item = new FilterItem("GaussFilterNL", OpGaussFilter ,GlaettungsFilterFarbe,this);}break;
-    case OpProbAddScramb: {item = new FilterItem("ProbabilisticAdditiveScrambler", OpProbAddScramb ,ScramblerFarbe,this);}break;
+    case OpProbAddScramb: {item = new FilterItem(ADDSCRMB, OpProbAddScramb ,ScramblerFarbe,this);}break;
     case OpSegmentator: {item = new FilterItem("Segmentator", OpSegmentator, SegmentierFarbe, this);}break;
     case OpLineFindTransVers: {item = new FilterItem("TransversLineFind", OpLineFindTransVers, LineDetectFarbe, this);}break;
         case OpShapeFollower: {item = new FilterItem("ShapeFollower", OpShapeFollower, ShapeFollowerFarbe, this);}break;
@@ -132,13 +132,13 @@ void PipeConfig::OnBtnAddFilter()
         //item = new FilterItem(selectedName, OpBoxFilter ,Qt::red,this);
        _GenerateFilterItem(OpBoxFilter);
    }
-   else if(!QString::compare(selectedName, QString("Input")))
+   else if(!QString::compare(selectedName, QString(IN)))
    {
        //Methode zum erzeugen eines QGraphicsItems für den Filter!!!!
         //item = new FilterItem(selectedName, OpInput ,Qt::white,this);
        _GenerateFilterItem(OpInput);
    }
-   else if(!QString::compare(selectedName, QString("Output")))
+   else if(!QString::compare(selectedName, QString(OUT)))
    {
        //Methode zum erzeugen eines QGraphicsItems für den Filter!!!!      
        //item = new FilterItem(selectedName, OpOutput ,Qt::white,this);
@@ -319,7 +319,9 @@ void PipeConfig::OnBtnApplyConfig()
 
     _MainWin->ApplyPipe(pipePlan);
 
+    /////////
     //Debug
+    /////////
     /*std::ofstream out;
 
     out.open("/home/gerdie/Desktop/SurfaceDebugOut.txt");

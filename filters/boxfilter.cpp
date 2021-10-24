@@ -14,6 +14,12 @@ BoxFilter::~BoxFilter()
 {
 }
 
+
+/*
+ *Der QImage Pfad Bestehend aus ProcessImage und dem FilterWindow Algo für das Filterfenster
+ * ACHTUNG: nicht Paralleliziert
+ *
+ */
 void BoxFilter::ProcessImage(QImage* imageToProcess)
 {
     _Image = imageToProcess;
@@ -33,9 +39,6 @@ void BoxFilter::ProcessImage(QImage* imageToProcess)
     }
 
 }
-
-
-
 
 
 QColor BoxFilter::_FilterWindow(QImage* imageToProcess,const int PixelPosX, const int PixelPosY)
@@ -112,7 +115,11 @@ QColor BoxFilter::_FilterWindow(QImage* imageToProcess,const int PixelPosX, cons
     return returnColor;
 }
 
-
+/*
+ * Der cvMat-Pfad
+ * ACHTUNG: Parallelisiert!
+ *
+ */
 myColorBgr BoxFilter::_FilterWindow(cv::Mat* imageToProcess,const int PixelPosX, const int PixelPosY)
 {
     myColorBgr returnColor;// = imageToProcess->pixel(PixelPosX, PixelPosY);
@@ -203,6 +210,9 @@ void BoxFilter::ProcessImagePar(cv::Mat *imageToProcess, const int xS, const int
     }
 
 }
+
+
+
 
 
 

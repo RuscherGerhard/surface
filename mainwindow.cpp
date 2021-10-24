@@ -9,7 +9,8 @@
 #include <QTextBrowser>
 #include <utils.h>
 #include <myspecialpixmapitem.h>
-#include <resultsview.h>
+#include <btnresultswitch.h>
+//#include <resultsview.h>
 
 //#include <QGraphicsSceneMouseEvent>
 //#include <QGraphicsItem>
@@ -48,15 +49,15 @@ void MainWindow::_SetupGui()
 
      MyView = ui->graphicsView; //ui->MainView;
 
-     MyScene  = new QGraphicsScene();
+     MyScene = new QGraphicsScene();
      MyView->setScene(MyScene);
 
 
 
      //Resultatauswahlfeld
      //ui->tab->layout()->removeWidget()
-     MyResultsView = new resultsView(ui->tabWidget, this);//ui->ResultsView;    
-     ui->tab->layout()->addWidget(MyResultsView);
+     //MyResultsView = new resultsView(ui->tabWidget, this);//ui->ResultsView;
+     //ui->tab->layout()->addWidget(MyResultsView);
 
      /*ÜMyResultsScene = new QGraphicsScene();
      MyResultsView->setScene(MyResultsScene);*/
@@ -65,6 +66,10 @@ void MainWindow::_SetupGui()
    ui->ErrorLabel->setText(tr("No Image loaded."));
 }
 
+
+/********************************************
+ * GUI Aufbauen
+ *********************************************/
 
 void MainWindow::_CreateMenus()
 {
@@ -103,6 +108,9 @@ void MainWindow::_CreateMenus()
     ui->menuBar->addMenu(Debug);
 
 
+    //Den Tabbedpane basteln
+    QVBoxLayout *layout = new QVBoxLayout( ui->tab);
+    ui->tab->setLayout(layout);
 
     //PipeConfig aufsetzen
 
@@ -127,28 +135,95 @@ void MainWindow::_CreateMenus()
 
 }
 
+void MainWindow::_MakeResultSwitchBtns(std::vector<std::vector<FilterId> > *pipePlan)
+{
 
+    _MyPipePlan = pipePlan;
+    //Über den PipePlan iterieren
+    for(int i = 0; i < pipePlan->size(); i++)
+    {
+        int size = pipePlan->at(i).size();
+        int amountChildren = ui->tab->children().size();
+
+        if (amountChildren < size)
+        {
+            int howMuch = size - amountChildren;
+
+            for(int k = 0; k < howMuch; k++)
+            {
+                //Buttons erzeugen
+
+                BtnResultSwitch* newBtn = new BtnResultSwitch(ui->tab, Undefined, "");
+                ui->tab->layout()->addWidget(newBtn);
+
+                connect(newBtn, SIGNAL(PushedId(int)), this, SLOT(_OnBtnSwitchImg(int)));
+            }
+
+        }
+        else if (amountChildren > size){
+            //amountChildren > size
+
+            int howMuch =amountChildren - size;
+            for(int k = 0; k < howMuch; k++)
+            {
+                if(ui->tab->children().size() == k)
+                    break;
+
+                QLayoutItem* item = ui->tab->layout()->itemAt(k);
+                ui->tab->layout()->removeItem(item);
+                item->widget()->deleteLater();
+
+            }
+
+        }
+
+
+        for(int j = 0; j < size-1; j++)
+        {
+
+            BtnResultSwitch* newBtn = static_cast<BtnResultSwitch*>(ui->tab->layout()->itemAt(j)->widget());
+
+            /*switch(pipePlan->at(i)[j])
+            {
+                case OpInput : newBtn->setNewBtnTitle(IN); newBtn->setNewBtnId(OpInput); break;
+            case OpOutput : newBtn->setNewBtnTitle(OUT); newBtn->setNewBtnId(OpOutput); break;
+            case OpBoxFilter : newBtn->setNewBtnTitle(BOX); newBtn->setNewBtnId(OpBoxFilter); break;
+            case OpProbAddScramb : newBtn->setNewBtnTitle(ADDSCRMB); newBtn->setNewBtnId(OpProbAddScramb); break;
+                default: newBtn->setNewBtnTitle("Unknown Filter");
+            }*/
+
+            switch(pipePlan->at(i)[j])
+            {
+                case OpInput : newBtn->setNewBtnTitle(IN);  break;
+            case OpOutput : newBtn->setNewBtnTitle(OUT);  break;
+            case OpBoxFilter : newBtn->setNewBtnTitle(BOX); break;
+            case OpProbAddScramb : newBtn->setNewBtnTitle(ADDSCRMB); break;
+                default: newBtn->setNewBtnTitle("Unknown Filter");
+            }
+
+            newBtn->setNewBtnId(j);
+
+        }
+    }
+
+        ui->tab->show();
+}
+
+
+
+/**************************************************
+ * Funktionalität
+ * ************************************************/
 
 //result widget
 void MainWindow::_CleanupResultPixMaps()
 {
-    /*size_t len = MyResultsScene->items().size();
-    for(size_t j=0; j < len; j++)
-    {
-
-        MyResultsScene->removeItem(MyResultsScene->items()[0]);
-    }
-
-
     for(size_t i = 0; i <  _ResultPixMaps.size(); i++)
     {
-        delete (_ResultPixMaps[i]);
+        delete _ResultPixMaps[i];
 
         _ResultPixMaps[i] = nullptr;
-    }*/
-
-    MyResultsView->CleanupResultPixMaps();
-
+    }
 }
 
 //result widget
@@ -164,14 +239,19 @@ void MainWindow::_AddResultsToScene()
     //Results von der Pipe holen
     std::vector<std::vector<QImage*>*>* results = _MainIfc->ProcessImage(MyImage);
 
-    MyResultsView->AddResultsToScene(MyImage, results);
+    //MyResultsView->AddResultsToScene(MyImage, results);
     //Falls wir einen Vector zurückbekommen haben, also falls tatsächlich eine Pipe aufgebaut wurde!!!!
-    /*if(results != nullptr)//Wenn NULL dann keine Pipe, klar!
+    if(results != nullptr)//Wenn NULL dann keine Pipe, klar!
     {
         unsigned int resSize = results->at(0)->size();
 
         //Die Anzahl der Pipes definiert auch die Anzahl der Views bei der Anzeige.
         _ResultPixMaps.resize(resSize+1);
+
+
+        QPixmap item = QPixmap::fromImage(*MyImage);
+        MyItem = new MySpecialPixMapItem(item, OpInput, this);
+        _ResultPixMaps[0] = MyItem;
 
         int id = 1;
 
@@ -179,24 +259,16 @@ void MainWindow::_AddResultsToScene()
         {
             //Das Item basteln
             QPixmap map = QPixmap::fromImage(*results->at(0)->at(j));
-            MySpecialPixMapItem* item = new MySpecialPixMapItem(map, id +j,this);
+
+
+            assert(_MyPipePlan != nullptr);
+            MySpecialPixMapItem* item = new MySpecialPixMapItem(map, j+id,this);
 
             //In die ResultsMap adden, unskalliert!!!!
-            _ResultPixMaps[j] = item;
-
-            //Scaled Items für die results view basteln (skallierte items)
-            int resVHeight = MyResultsView->height();
-            int reVWidth = MyResultsView->width();
-            QPixmap scaledMap = map.scaled(MyResultsView->width(), MyResultsView->height()/5, Qt::KeepAspectRatio);
-            MySpecialPixMapItem* scaledItem = new MySpecialPixMapItem(scaledMap, id +j, this);
-
-            scaledItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
-
-            scaledItem->setPos(0, scaledMap.height()*(j+1) +10);
-
-            //In die Scene adden!
-            MyResultsScene->addItem(scaledItem);
+            _ResultPixMaps[j+id] = item;
         }
+
+
     }
     else
     {
@@ -204,23 +276,31 @@ void MainWindow::_AddResultsToScene()
         _ResultPixMaps.resize(1);
     }
 
-    //Das Item basteln
-    QPixmap map = QPixmap::fromImage(*MyImage);
-    MySpecialPixMapItem* item = new MySpecialPixMapItem(map, ORIGINAL_IMG, this);
-    _ResultPixMaps[_ResultPixMaps.size()-1] = item;
+}
+
+void MainWindow::ApplyPipe(std::vector<std::vector<FilterId> > *pipePlan)
+{
+
+    //Die Pipeblaupause an den PipeManager weiter leiten!!
+    _MainIfc->ForwardPipePlanToPipeManager(pipePlan);
+
+    //Die Resultswitches zum Umschalten der Bilder in der Main-Anzeige aufbauen
+    _MakeResultSwitchBtns(pipePlan);
 
 
-    QPixmap scaledMap = map.scaled(MyResultsView->width(), MyResultsView->height()/5, Qt::KeepAspectRatio);
-    MySpecialPixMapItem* scaledItem = new MySpecialPixMapItem(scaledMap, ORIGINAL_IMG, this);
-    scaledItem->setPos(0,0);
-    scaledItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
+    //Aufruf der Bildverarbeitung
+    _AddResultsToScene();
 
-    //In die ResultsMap adden
-    MyResultsScene->addItem(scaledItem);*/
+    //Refresh der View
+    MyView->show();
 
 }
 
 
+/*
+ * Bilder Anzeige
+ *
+ */
 
 //Das geladene Bild in eine Pixmap packen und anzeigen!
 void MainWindow::DisplayImage(MySpecialPixMapItem* Img)
@@ -249,9 +329,6 @@ void MainWindow::DisplayImage(MySpecialPixMapItem* Img)
     //Wenn die Dimensionen der Scene jene der View übersteigen, Anzeige anpassen!
     MyView->fitInView(MyScene->sceneRect(), Qt::KeepAspectRatio);
 
-    //Die ResultsView bearbeiten!
-    //_AddResultsToScene();
-
     MyView->show();
     ui->ErrorLabel->setText("Image loaded!");
 
@@ -262,19 +339,9 @@ void MainWindow::DisplayImage(MySpecialPixMapItem* Img)
 }
 
 
-void MainWindow::ApplyPipe(std::vector<std::vector<FilterId> > *pipePlan)
-{
-
-    //Die Pipeblaupause an den PipeManager weiter leiten!!
-    _MainIfc->ForwardPipePlanToPipeManager(pipePlan);
-
-    _AddResultsToScene();
-    MyView->show();
-
-}
 
 
-void MainWindow::_SwitchImgInMainView(const unsigned int Id)
+void MainWindow::_SwitchImgInMainView(const unsigned int Idx)
 {
 
     bool idFound = false;
@@ -282,8 +349,9 @@ void MainWindow::_SwitchImgInMainView(const unsigned int Id)
     MySpecialPixMapItem* itemToShow =nullptr;
 
     //Neues Item erzeugen!
-   /* for(size_t i = 0; i < _ResultPixMaps.size(); i++)
+   /*for(size_t i = 0; i < _ResultPixMaps.size(); i++)
     {
+       assert(_ResultPixMaps[i] != nullptr);
         unsigned int lid = _ResultPixMaps[i]->GetId();
         if(lid == Id)
         {
@@ -294,8 +362,9 @@ void MainWindow::_SwitchImgInMainView(const unsigned int Id)
         }
     }*/
 
-    itemToShow = MyResultsView->SearchInResultsPixmaps(Id);
+    itemToShow = _ResultPixMaps[Idx];
 
+    ui->ErrorLabel->setText("Found corresponding Image");
     if(itemToShow != nullptr)
     {
         //Das gefundene Bild anzeigen
@@ -307,7 +376,6 @@ void MainWindow::_SwitchImgInMainView(const unsigned int Id)
         ui->ErrorLabel->setText("No corresponding Image found!!!");
     }
 }
-
 
 
 void MainWindow::_PrepareForNewImage(QImage *newImage, const QString &fileName)
@@ -334,6 +402,13 @@ void MainWindow::_PrepareForNewImage(QImage *newImage, const QString &fileName)
 
 }
 
+
+/*
+ *
+ * Histogramm
+ *
+ *
+ */
 
 void MainWindow::_OpenHistogram(QImage* img)
 {
@@ -362,6 +437,10 @@ void MainWindow::_OpenHistogram(QPixmap* img)
     QImage image = img->toImage();
     _OpenHistogram(&image);
 }
+
+
+
+
 
 ///////////
 /// Setter
@@ -442,14 +521,22 @@ void MainWindow::_OnBtnLoad()
     {
     case TOTAL_ERROR: {ui->ErrorLabel->setText("ERROR: could not load project data!"); }
         break;
-    case NO_IMG_FOUND: {_PipeConfig->DisplayPipeConfig(info.PipePlan); ui->ErrorLabel->setText("No Image found!");}
+    case NO_IMG_FOUND: {_PipeConfig->DisplayPipeConfig(info.PipePlan); _MakeResultSwitchBtns(info.PipePlan); _MyPipePlan = info.PipePlan; ui->ErrorLabel->setText("No Image found!");}
         break;
     case NO_PIPES_FOUND: { _PrepareForNewImage(img, filenName); ui->ErrorLabel->setText("No Pipes Found");}
         break;
     case ERROR_SUCCESS:
     {
+        //Neue image aufsetzen
         _PrepareForNewImage(img, filenName);
+
+        //Den Pipe-Editor entsprechen einstellen, um die Aktuelle Pipe anzuzeigen.
         _PipeConfig->DisplayPipeConfig(info.PipePlan);
+
+        //Die Image-Result-Switches entsprechend der eingestellten Pipe basteln.
+        _MakeResultSwitchBtns(info.PipePlan);
+
+        _MyPipePlan = info.PipePlan;
 
         ui->ErrorLabel->setText("Project data loaded!");
     }
@@ -504,6 +591,12 @@ void MainWindow::_OnMenuBtnHistogram()
 void MainWindow::_OnHistoClosed()
 {
     _HistoOpen = false;
+}
+
+
+void MainWindow::_OnBtnSwitchImg(int Id)
+{
+    _SwitchImgInMainView(Id);
 }
 
 

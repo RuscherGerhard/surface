@@ -15,7 +15,8 @@ class MainIfc;
 class QGridLayout;
 class QTextBrowser;
 class MySpecialPixMapItem;
-class resultsView;
+//class resultsView;
+class BtnResultSwitch;
 
 
 namespace Ui {
@@ -56,7 +57,7 @@ protected:
      *
      * @param Id: Ist die Id des neu anzuzeigenden Bildes!
      */
-    void _SwitchImgInMainView(const unsigned int Id);
+    void _SwitchImgInMainView(const unsigned int Idx);
 
 private:
     Ui::MainWindow *ui;
@@ -68,7 +69,7 @@ private:
     //Pointer
     MainIfc* _MainIfc;
 
-
+    std::vector<std::vector<FilterId>>* _MyPipePlan;
 
     //Variablen
     QString MyImageAddress;
@@ -76,7 +77,7 @@ private:
     QGraphicsScene* MyScene;
     //QGraphicsView* MyResultsView;//Wird erstetzt durch die Externe Klasse MyResultsView
     //QGraphicsScene* MyResultsScene;//Gehört zur MyResultsView
-    resultsView* MyResultsView;
+    //resultsView* MyResultsView;
 
     MySpecialPixMapItem* MyItem;///< Ist das Bild in der hauptanzeige
 
@@ -127,6 +128,12 @@ private:
     void _OpenHistogram(QImage* img=nullptr);
     void _OpenHistogram(QPixmap* img);
 
+    /**
+     * @brief _MakeResultSwitchBtns
+     * @param pipePlan
+     */
+    void _MakeResultSwitchBtns(std::vector<std::vector<FilterId> > *pipePlan);
+
 private slots:
     void _OnMenuBtnLoadImg();
     void _OnExit();
@@ -137,6 +144,11 @@ private slots:
     void _OnHistoClosed();
 
     /**
+     * @brief _OnBtnSwitchImg Slot, das das wechseln der Hauptanzeige veranlasst!
+     */
+    void _OnBtnSwitchImg(int Id);
+
+    /**
      * @brief _OnBtnLoad: Diese Methode läd ein Projekt
      */
     void _OnBtnLoad();//
@@ -144,6 +156,8 @@ private slots:
      * @brief _OnBtnSave: Diese Methode speichern ein Projekt!
      */
     void _OnBtnSave();
+
+
 
 };
 

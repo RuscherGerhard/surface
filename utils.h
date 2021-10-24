@@ -17,6 +17,16 @@
 #define BOX_FILTER "*[Box Filter]"
 #define PIPE_MAN "*[Pipe Manager]"
 
+//Filternamen Defines
+#define IN    "Input"
+#define OUT   "Output"
+#define BOX      "BoxFilter"
+#define ADDSCRMB "ProbabilisticAdditiveScrambler"
+#define GAUSS    "Gauss Filter"
+#define LINE     "Shape Follower"
+#define SEGMENT  "Segmentator"
+
+
 
 typedef enum Error_Codes
 {
@@ -43,6 +53,8 @@ typedef enum FilterId
     OpSkeletonizer,
     Undefined
 }_FilterId;
+
+
 
 
 

@@ -26,6 +26,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        btnresultswitch.cpp \
         filters/boxfilter.cpp \
         filters/filter.cpp \
         filters/gaussfilter.cpp \
@@ -48,10 +49,10 @@ SOURCES += \
         pipe.cpp \
         pipeconfig.cpp \
         pipemanager.cpp \
-        resultsview.cpp \
         utils.cpp
 
 HEADERS += \
+        btnresultswitch.h \
         filters/boxfilter.h \
         filters/filter.h \
         filters/filterutils.h \
@@ -74,7 +75,6 @@ HEADERS += \
         pipe.h \
         pipeconfig.h \
         pipemanager.h \
-        resultsview.h \
         utils.h
 
 FORMS += \

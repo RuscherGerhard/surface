@@ -23,7 +23,7 @@ void MySpecialPixMapItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 
 void MySpecialPixMapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    if(isSelected())
+    /*if(isSelected())
     {
         painter->setPen(Qt::green);
     }
@@ -34,7 +34,7 @@ void MySpecialPixMapItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
 
     painter->drawRect(boundingRect());
 
-    painter->setBrush(Qt::black);
+    painter->setBrush(Qt::black);*/
 
     QGraphicsPixmapItem::paint(painter, option, widget);
 }
